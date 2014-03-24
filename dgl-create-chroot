@@ -74,6 +74,11 @@ fi
 
 CURDIR="`pwd`"
 
+if (echo "$CURDIR" | grep "Cataclysm-DDA/tools")
+then
+CDDABIN="../cataclysm"
+fi
+
 if [ ! -e "$CURDIR/dgamelaunch" ]; then
    errorexit "Cannot find dgamelaunch in $CURDIR"
 fi
