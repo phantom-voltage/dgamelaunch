@@ -73,6 +73,7 @@ if [ -e "$CHROOT" ]; then
 fi
 
 CURDIR="`pwd`"
+echo "CURDIR is $CURDIR"
 
 if (echo "$CURDIR" | grep "Cataclysm-DDA/tools")
 then
