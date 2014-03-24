@@ -139,11 +139,11 @@ echo "Edit $CHROOT/etc/dgamelaunch.conf to suit your needs."
 cd ..
 
 
-cd bin
-cp "$CURDIR/ee" .
-cp "$CURDIR/virus" .
-echo "Copied text editors 'ee' and 'virus' to chroot."
-cd ..
+#cd bin
+#cp "$CURDIR/ee" .
+#cp "$CURDIR/virus" .
+#echo "Copied text editors 'ee' and 'virus' to chroot."
+#cd ..
 
 
 cp "$CURDIR/examples/dgl_menu_main_anon.txt" .
@@ -151,9 +151,6 @@ cp "$CURDIR/examples/dgl_menu_main_user.txt" .
 cp "$CURDIR/examples/dgl_menu_watchmenu_help.txt" .
 cp "$CURDIR/examples/dgl-banner" .
 chmod go+r dgl_menu_main_anon.txt dgl_menu_main_user.txt dgl-banner
-
-
-mkdir "$CDDASUBDIR"
 
 if [ -n "$CDDABIN" -a ! -e "$CDDABIN" ]; then
   errorexit "Cannot find Cataclysm-DDA binary $CDDABIN"
