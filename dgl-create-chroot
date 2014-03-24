@@ -10,19 +10,19 @@
 
 
 # Same as chroot_path in dgl config file
-CHROOT="/opt/nethack/nethack.alt.org/"
+CHROOT="/opt/dgamelaunch/cdd/"
 # the user & group from dgamelaunch config file.
 USRGRP="games:games"
 # COMPRESS from include/config.h; the compression binary to copy. leave blank to skip.
-COMPRESSBIN="/bin/gzip"
-# nethack binary to copy into chroot (leave blank to skip)
-#NETHACKBIN="/home/paxed/hacking/coding/nethacksource/nethack-3.4.3-nao/nh343/nethack.343-nao"
-# fixed data to copy (leave blank to skip)
-#NH_PLAYGROUND_FIXED="/home/paxed/hacking/coding/nethacksource/nethack-3.4.3-nao/nh343/"
+#COMPRESSBIN="/bin/gzip"
+# cdda binary to copy into chroot (leave blank to skip)
+CDDABIN="../Cataclysm-DDA/cataclysm"
+# dir to copy shared data from
+CDDADIR="../Cataclysm-DDA/"
 # HACKDIR from include/config.h; aka nethack subdir inside chroot
-NHSUBDIR="/nh343/"
-# VAR_PLAYGROUND from include/unixconf.h
-NH_VAR_PLAYGROUND="/nh343/var/"
+CDDASUBDIR="/cdda/"
+# dir for shared files
+CDDA_SHARED_FILES="/cdda/share/"
 
 # only define this if dgl was configured with --enable-sqlite
 SQLITE_DBFILE="/dgldir/dgamelaunch.db"
@@ -91,9 +91,9 @@ chown "$USRGRP" dgldir mail
 cp "$CURDIR/dgamelaunch" "$DGLFILE"
 ln -s "$DGLFILE" dgamelaunch
 
-mkdir -p "$CHROOT/dgldir/inprogress-nh343"
+mkdir -p "$CHROOT/dgldir/inprogress-cdda"
 mkdir -p "$CHROOT/dgldir/userdata"
-chown "$USRGRP" "$CHROOT/dgldir/inprogress-nh343"
+chown "$USRGRP" "$CHROOT/dgldir/inprogress-cdda"
 chown "$USRGRP" "$CHROOT/dgldir/userdata"
 
 
@@ -145,59 +145,38 @@ cp "$CURDIR/examples/dgl_menu_main_anon.txt" .
 cp "$CURDIR/examples/dgl_menu_main_user.txt" .
 cp "$CURDIR/examples/dgl_menu_watchmenu_help.txt" .
 cp "$CURDIR/examples/dgl-banner" .
-cp "$CURDIR/dgl-default-rcfile" "dgl-default-rcfile.nh343"
-chmod go+r dgl_menu_main_anon.txt dgl_menu_main_user.txt dgl-banner dgl-default-rcfile.nh343
+chmod go+r dgl_menu_main_anon.txt dgl_menu_main_user.txt dgl-banner
 
-NHSUBDIR="`echo ${NHSUBDIR%/}`"
-NHSUBDIR="`echo ${NHSUBDIR#/}`"
 
-mkdir "$CHROOT/$NHSUBDIR"
+mkdir "$CDDASUBDIR"
 
-if [ -n "$NETHACKBIN" -a ! -e "$NETHACKBIN" ]; then
-  errorexit "Cannot find NetHack binary $NETHACKBIN"
+if [ -n "$CDDABIN" -a ! -e "$CDDABIN" ]; then
+  errorexit "Cannot find Cataclysm-DDA binary $CDDABIN"
 fi
 
-if [ -n "$NETHACKBIN" -a -e "$NETHACKBIN" ]; then
-  echo "Copying $NETHACKBIN"
-  cd "$NHSUBDIR"
-  NHBINFILE="`basename $NETHACKBIN`.`date +%Y%m%d`"
-  cp "$NETHACKBIN" "$NHBINFILE"
-  ln -s "$NHBINFILE" nethack
-  LIBS="$LIBS `findlibs $NETHACKBIN`"
+if [ -n "$CDDABIN" -a -e "$CDDABIN" ]; then
+  echo "Copying $CDDAKBIN"
+  cd "$CDDASUBDIR"
+  CDDABINFILE="`basename $CDDABIN`.`date +%Y%m%d`"
+  cp "$CDDABIN" "$CDDABINFILE"
+  ln -s "$CDDABINFILE" cataclysm
+  LIBS="$LIBS `findlibs $CDDABIN`"
   cd "$CHROOT"
 fi
 
 
-NH_PLAYGROUND_FIXED="`echo ${NH_PLAYGROUND_FIXED%/}`"
+mkdir "$CDDA_SHARED_FILES"
 
-if [ -n "$NH_PLAYGROUND_FIXED" -a -d "$NH_PLAYGROUND_FIXED" ]; then
-  echo "Copying NetHack playground stuff."
-  NHFILES="*.lev *.dat cmdhelp data dungeon help hh history license opthelp options oracles recover rumors wizhelp"
-  for fil in $NHFILES; do
-    cp $NH_PLAYGROUND_FIXED/$fil "$CHROOT/$NHSUBDIR/"
+if [ -n "$CDDA_SHARED_FILES" -a -d "$CDDA_SHARED_FILES" ]; then
+  echo "Copying Cataclysm-DDA shared data"
+  SHARED_DATA="data lua lang gfx"
+  for fil in $SHARED_DATA; do
+    cp $CDDADIR/$fil "$CHROOT/$CDDASUBDIR/"
   done
 fi
 
-
-NH_VAR_PLAYGROUND="`echo ${NH_VAR_PLAYGROUND%/}`"
-NH_VAR_PLAYGROUND="`echo ${NH_VAR_PLAYGROUND#/}`"
-
-echo "Creating NetHack variable dir stuff."
-if [ -n "$NH_VAR_PLAYGROUND" ]; then
-  mkdir -p "$CHROOT/$NH_VAR_PLAYGROUND"
-  chown -R "$USRGRP" "$CHROOT/$NH_VAR_PLAYGROUND"
-fi
-mkdir -p "$CHROOT/$NH_VAR_PLAYGROUND/save"
-chown -R "$USRGRP" "$CHROOT/$NH_VAR_PLAYGROUND/save"
-touch "$CHROOT/$NH_VAR_PLAYGROUND/logfile"
-touch "$CHROOT/$NH_VAR_PLAYGROUND/perm"
-touch "$CHROOT/$NH_VAR_PLAYGROUND/record"
-touch "$CHROOT/$NH_VAR_PLAYGROUND/xlogfile"
-
-chown -R "$USRGRP" "$CHROOT/$NHSUBDIR"
-chown -R "$USRGRP" "$CHROOT/$NH_VAR_PLAYGROUND"
-
-
+chown -R "$USRGRP" "$CHROOT/$CDDASUBDIR"
+chown -R "$USRGRP" "$CHROOT/$CDDA_SHARED_FILES"
 
 # Curses junk
 if [ -n "$TERMDATA" ]; then
