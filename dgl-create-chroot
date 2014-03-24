@@ -73,7 +73,6 @@ if [ -e "$CHROOT" ]; then
 fi
 
 CURDIR="`pwd`"
-echo "CURDIR is $CURDIR"
 
 if (echo "$CURDIR" | grep "Cataclysm-DDA/tools")
 then
@@ -153,6 +152,8 @@ cp "$CURDIR/examples/dgl_menu_watchmenu_help.txt" .
 cp "$CURDIR/examples/dgl-banner" .
 chmod go+r dgl_menu_main_anon.txt dgl_menu_main_user.txt dgl-banner
 
+
+echo "pwd is `pwd`"
 if [ -n "$CDDABIN" -a ! -e "$CDDABIN" ]; then
   errorexit "Cannot find Cataclysm-DDA binary $CDDABIN"
 fi
