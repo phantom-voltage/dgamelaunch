@@ -1,7 +1,8 @@
 #!/bin/sh
 
 # Ideas and some parts from the original dgl-create-chroot (by joshk@triplehelix.org, modifications by jilles@stack.nl)
-# This one by paxed@alt.org
+# Plus modifications by paxed@alt.org
+# This one by codehero@nerdpol.ch
 
 
 #
@@ -16,13 +17,31 @@ USRGRP="games:games"
 # COMPRESS from include/config.h; the compression binary to copy. leave blank to skip.
 #COMPRESSBIN="/bin/gzip"
 # cdda binary to copy into chroot (leave blank to skip)
-CDDABIN="/home/codehero/Cataclysm-DDA/cataclysm"
+echo "Please input the FULL path of the cataclysm binary. Leave empty for /home/$USER/Cataclysm-DDA/cataclysm"
+read CDDABIN
+if [[ -z "$CDDABIN" ]]
+then
+CDDABIN="/home/$USER/Cataclysm-DDA/cataclysm"
+fi
 # dir to copy shared data from
-CDDADIR="/home/codehero/Cataclysm-DDA/"
+echo "Please input the FULL path of the Cataclysm-DDA folder. Leave empty for /home/$USER/Cataclysm-DDA/cataclysm"
+read CDDADIR
+if [[ -z "$CDDADIR" ]]
+then
+CDDADIR="/home/$USER/Cataclysm-DDA/"
+fi
+echo "Please input the name of your server"
+read SERVERNAME
+if [[ -z "$SERVERNAME" ]]
+then
+SERVERNAME=MYSERVERNAMEHERE
+fi
 # CDDASUBDIR from include/config.h; aka cataclysm subdir inside chroot
 CDDASUBDIR="cdda/"
 # dir for shared files
 CDDA_SHARED_FILES="dgldir/share/cataclysm-dda/"
+
+DGLROOT="dgldir/"
 
 # only define this if dgl was configured with --enable-sqlite
 SQLITE_DBFILE="dgldir/dgamelaunch.db"
@@ -133,14 +152,6 @@ echo "Edit $CHROOT/etc/dgamelaunch.conf to suit your needs."
 [ -f /etc/localtime ] && cp /etc/localtime .
 cd ..
 
-
-#cd bin
-#cp "$CURDIR/ee" .
-#cp "$CURDIR/virus" .
-#echo "Copied text editors 'ee' and 'virus' to chroot."
-#cd ..
-
-
 cp "$CURDIR/examples/dgl_menu_main_anon.txt" .
 cp "$CURDIR/examples/dgl_menu_main_user.txt" .
 cp "$CURDIR/examples/dgl_menu_watchmenu_help.txt" .
@@ -200,12 +211,21 @@ LIBS=`for lib in $LIBS; do echo $lib; done | sort | uniq`
 echo "Copying libraries:" $LIBS
 for lib in $LIBS; do
         mkdir -p "$CHROOT`dirname $lib`"
-        cp $lib "$CHROOT$lib"
+        cp $lib "$CHROOT/$lib"
 done
 
 echo "Copying locale"
 mkdir -p $CHROOT/usr/lib/locale/
 cp -LR /usr/lib/locale/* $CHROOT/usr/lib/locale/
+
+echo "editing dgamelaunch.conf to use the correct server name"
+sed -i 's/MYSERVERNAMEHERE/$SERVERNAME/g' dgamelaunch.conf
+
+echo "chowning  $CHROOT/$DGLROOT to make sure the permissions are correct"
+chown -R "$USERGRP" "$CHROOT/$DGLROOT"
+
+echo "Go to $CHROOT, execute dgamelaunch as root, and create an 'admin' user before setting up ssh/telnet!"
+echo "You should also use this opportunity to test if Cataclysm-DDA runs, if it doesn't please contact me at codehero@nerdpol.ch or C0DEHERO on github."
 
 echo "Finished."
 
