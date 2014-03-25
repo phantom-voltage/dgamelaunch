@@ -168,10 +168,11 @@ fi
 
 
 mkdir -p "$CHROOT/$CDDA_SHARED_FILES"
+DATAFILES="data/*"
 
 if [ -n "$CDDA_SHARED_FILES" -a -d "$CDDA_SHARED_FILES" ]; then
   echo "Copying Cataclysm-DDA shared data"
-  cp -LR "$CDDADIRdata/*" "$CHROOT/$CDDA_SHARED_FILES"
+  cp -LR $CDDADIR$DATAFILES "$CHROOT/$CDDA_SHARED_FILES"
   SHARED_DATA="lua lang gfx"
   for fil in $SHARED_DATA; do
     cp -LR $CDDADIR$fil "$CHROOT/$CDDA_SHARED_FILES"
