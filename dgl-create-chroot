@@ -10,7 +10,7 @@
 
 
 # Same as chroot_path in dgl config file
-CHROOT="/opt/dgamelaunch/cdd/"
+CHROOT="/opt/dgamelaunch/cdda/"
 # the user & group from dgamelaunch config file.
 USRGRP="games:games"
 # COMPRESS from include/config.h; the compression binary to copy. leave blank to skip.
@@ -153,7 +153,7 @@ if [ -n "$CDDABIN" -a ! -e "$CDDABIN" ]; then
 fi
 
 if [ -n "$CDDABIN" -a -e "$CDDABIN" ]; then
-  echo "Copying $CDDAKBIN"
+  echo "Copying $CDDABIN"
   cd "$CDDASUBDIR"
   CDDABINFILE="`basename $CDDABIN`.`date +%Y%m%d`"
   cp "$CDDABIN" "$CDDABINFILE"
