@@ -16,9 +16,9 @@ USRGRP="games:games"
 # COMPRESS from include/config.h; the compression binary to copy. leave blank to skip.
 #COMPRESSBIN="/bin/gzip"
 # cdda binary to copy into chroot (leave blank to skip)
-CDDABIN="../Cataclysm-DDA/cataclysm"
+CDDABIN="/home/codehero/Cataclysm-DDA/cataclysm"
 # dir to copy shared data from
-CDDADIR="../Cataclysm-DDA/"
+CDDADIR="/home/codehero/Cataclysm-DDA/cataclysm"
 # HACKDIR from include/config.h; aka nethack subdir inside chroot
 CDDASUBDIR="/cdda/"
 # dir for shared files
@@ -73,11 +73,6 @@ if [ -e "$CHROOT" ]; then
 fi
 
 CURDIR="`pwd`"
-
-if (echo "$CURDIR" | grep "Cataclysm-DDA/tools")
-then
-CDDABIN="../cataclysm"
-fi
 
 if [ ! -e "$CURDIR/dgamelaunch" ]; then
    errorexit "Cannot find dgamelaunch in $CURDIR"
@@ -153,7 +148,6 @@ cp "$CURDIR/examples/dgl-banner" .
 chmod go+r dgl_menu_main_anon.txt dgl_menu_main_user.txt dgl-banner
 
 
-echo "pwd is `pwd`"
 if [ -n "$CDDABIN" -a ! -e "$CDDABIN" ]; then
   errorexit "Cannot find Cataclysm-DDA binary $CDDABIN"
 fi
