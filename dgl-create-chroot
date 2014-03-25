@@ -18,7 +18,7 @@ USRGRP="games:games"
 # cdda binary to copy into chroot (leave blank to skip)
 CDDABIN="/home/codehero/Cataclysm-DDA/cataclysm"
 # dir to copy shared data from
-CDDADIR="/home/codehero/Cataclysm-DDA/cataclysm"
+CDDADIR="/home/codehero/Cataclysm-DDA/"
 # HACKDIR from include/config.h; aka nethack subdir inside chroot
 CDDASUBDIR="/cdda/"
 # dir for shared files
