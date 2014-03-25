@@ -173,7 +173,7 @@ if [ -n "$CDDA_SHARED_FILES" -a -d "$CDDA_SHARED_FILES" ]; then
   echo "Copying Cataclysm-DDA shared data"
   SHARED_DATA="data lua lang gfx"
   for fil in $SHARED_DATA; do
-    cp $CDDADIR$fil "$CHROOT/$CDDASUBDIR/"
+    cp -LR $CDDADIR$fil "$CHROOT/$CDDASUBDIR/"
   done
 fi
 
