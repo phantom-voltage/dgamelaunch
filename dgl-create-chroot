@@ -22,7 +22,7 @@ CDDADIR="/home/codehero/Cataclysm-DDA/"
 # CDDASUBDIR from include/config.h; aka cataclysm subdir inside chroot
 CDDASUBDIR="cdda/"
 # dir for shared files
-CDDA_SHARED_FILES="cdda/share/"
+CDDA_SHARED_FILES="dgldir/share/"
 
 # only define this if dgl was configured with --enable-sqlite
 SQLITE_DBFILE="dgldir/dgamelaunch.db"
@@ -167,13 +167,13 @@ if [ -n "$CDDABIN" -a -e "$CDDABIN" ]; then
 fi
 
 
-mkdir "$CDDA_SHARED_FILES"
+mkdir -p "$CHROOT/$CDDA_SHARED_FILES"
 
 if [ -n "$CDDA_SHARED_FILES" -a -d "$CDDA_SHARED_FILES" ]; then
   echo "Copying Cataclysm-DDA shared data"
   SHARED_DATA="data lua lang gfx"
   for fil in $SHARED_DATA; do
-    cp -LR $CDDADIR$fil "$CHROOT/$CDDASUBDIR/"
+    cp -LR $CDDADIR$fil "$CHROOT/$CDDA_SHARED_FILES"
   done
 fi
 
