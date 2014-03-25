@@ -19,8 +19,8 @@ USRGRP="games:games"
 CDDABIN="/home/codehero/Cataclysm-DDA/cataclysm"
 # dir to copy shared data from
 CDDADIR="/home/codehero/Cataclysm-DDA/"
-# HACKDIR from include/config.h; aka nethack subdir inside chroot
-CDDASUBDIR="/cdda/"
+# CDDASUBDIR from include/config.h; aka cataclysm subdir inside chroot
+CDDASUBDIR="/cdda"
 # dir for shared files
 CDDA_SHARED_FILES="/cdda/share/"
 
@@ -154,6 +154,7 @@ fi
 
 if [ -n "$CDDABIN" -a -e "$CDDABIN" ]; then
   echo "Copying $CDDABIN"
+  cd "$CHROOT"
   cd "$CDDASUBDIR"
   CDDABINFILE="`basename $CDDABIN`.`date +%Y%m%d`"
   cp "$CDDABIN" "$CDDABINFILE"
