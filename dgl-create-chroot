@@ -203,6 +203,9 @@ for lib in $LIBS; do
         cp $lib "$CHROOT$lib"
 done
 
+echo "Copying locale"
+mkdir -p $CHROOT/usr/lib/locale/
+cp -LR /usr/lib/locale/* $CHROOT/usr/lib/locale/
 
 echo "Finished."
 
