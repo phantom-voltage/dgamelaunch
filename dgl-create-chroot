@@ -157,7 +157,9 @@ if [ -n "$CDDABIN" -a -e "$CDDABIN" ]; then
   cd "$CHROOT"
   cd "$CDDASUBDIR"
   CDDABINFILE="`basename $CDDABIN`.`date +%Y%m%d`"
+  echo "-copying $CDDABIN to $CDDABINFILE"
   cp "$CDDABIN" "$CDDABINFILE"
+  echo "-creating symlink cataclysm to $CDDABINFILE"
   ln -s "$CDDABINFILE" cataclysm
   LIBS="$LIBS `findlibs $CDDABIN`"
   cd "$CHROOT"
