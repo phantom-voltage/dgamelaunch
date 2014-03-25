@@ -19,20 +19,20 @@ USRGRP="games:games"
 # cdda binary to copy into chroot (leave blank to skip)
 echo "Please input the FULL path of the cataclysm binary. Leave empty for /home/$USER/Cataclysm-DDA/cataclysm"
 read CDDABIN
-if [[ -z "$CDDABIN" ]]
+if [ -z "$CDDABIN" ]
 then
 CDDABIN="/home/$USER/Cataclysm-DDA/cataclysm"
 fi
 # dir to copy shared data from
-echo "Please input the FULL path of the Cataclysm-DDA folder. Leave empty for /home/$USER/Cataclysm-DDA/cataclysm"
+echo "Please input the FULL path of the Cataclysm-DDA folder. Leave empty for /home/$USER/Cataclysm-DDA/"
 read CDDADIR
-if [[ -z "$CDDADIR" ]]
+if [ -z "$CDDADIR" ]
 then
 CDDADIR="/home/$USER/Cataclysm-DDA/"
 fi
 echo "Please input the name of your server"
 read SERVERNAME
-if [[ -z "$SERVERNAME" ]]
+if [ -z "$SERVERNAME" ]
 then
 SERVERNAME=MYSERVERNAMEHERE
 fi
