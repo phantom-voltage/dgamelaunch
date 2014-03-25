@@ -156,6 +156,7 @@ if [ -n "$CDDABIN" -a -e "$CDDABIN" ]; then
   echo "Copying $CDDABIN"
   cd "$CHROOT"
   cd "$CDDASUBDIR"
+  echo "-pwd is `pwd`"
   CDDABINFILE="`basename $CDDABIN`.`date +%Y%m%d`"
   echo "-copying $CDDABIN to $CDDABINFILE"
   cp "$CDDABIN" "$CDDABINFILE"
