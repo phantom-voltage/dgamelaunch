@@ -219,7 +219,7 @@ mkdir -p $CHROOT/usr/lib/locale/
 cp -LR /usr/lib/locale/* $CHROOT/usr/lib/locale/
 
 echo "editing dgamelaunch.conf to use the correct server name"
-sed -i 's/MYSERVERNAMEHERE/$SERVERNAME/g' dgamelaunch.conf
+sed -i 's/MYSERVERNAMEHERE/$SERVERNAME/g' examples/dgamelaunch.conf
 
 echo "chowning  $CHROOT/$DGLROOT to make sure the permissions are correct"
 chown -R "$USERGRP" "$CHROOT/$DGLROOT"
