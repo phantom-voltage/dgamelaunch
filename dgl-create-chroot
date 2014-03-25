@@ -20,12 +20,12 @@ CDDABIN="/home/codehero/Cataclysm-DDA/cataclysm"
 # dir to copy shared data from
 CDDADIR="/home/codehero/Cataclysm-DDA/"
 # CDDASUBDIR from include/config.h; aka cataclysm subdir inside chroot
-CDDASUBDIR="/cdda"
+CDDASUBDIR="cdda/"
 # dir for shared files
-CDDA_SHARED_FILES="/cdda/share/"
+CDDA_SHARED_FILES="cdda/share/"
 
 # only define this if dgl was configured with --enable-sqlite
-SQLITE_DBFILE="/dgldir/dgamelaunch.db"
+SQLITE_DBFILE="dgldir/dgamelaunch.db"
 
 # END OF CONFIG
 ##############################################################################
