@@ -148,13 +148,13 @@ cp "$CURDIR/examples/dgl-banner" .
 chmod go+r dgl_menu_main_anon.txt dgl_menu_main_user.txt dgl-banner
 
 
+mkdir "$CHROOT/$CDDASUBDIR"
 if [ -n "$CDDABIN" -a ! -e "$CDDABIN" ]; then
   errorexit "Cannot find Cataclysm-DDA binary $CDDABIN"
 fi
 
 if [ -n "$CDDABIN" -a -e "$CDDABIN" ]; then
   echo "Copying $CDDABIN"
-  cd "$CHROOT"
   cd "$CDDASUBDIR"
   echo "-pwd is `pwd`"
   CDDABINFILE="`basename $CDDABIN`.`date +%Y%m%d`"
