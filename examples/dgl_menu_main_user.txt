@@ -11,7 +11,8 @@
  c) Change password
  e) Change email address
  w) Watch games in progress
- p) Play Cataclysm-DDA
+ p) Play Cataclysm-DDA (Shared map)
+ t) Play Catalysm-DDA 
  q) Quit
 
  =>
