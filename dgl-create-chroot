@@ -39,7 +39,10 @@ fi
 # CDDASUBDIR from include/config.h; aka cataclysm subdir inside chroot
 CDDASUBDIR="cdda/"
 # dir for shared files
-CDDA_SHARED_FILES="dgldir/share/cataclysm-dda/"
+DGLROOT="dgldir/"
+
+SHARE_DIR="$DGLROOTshare/"
+CDDA_SHARED_FILES="$SHARE_DIRcataclysm-dda/"
 
 DGLROOT="dgldir/"
 
@@ -197,6 +200,7 @@ fi
 
 chown -R "$USRGRP" "$CHROOT/$CDDASUBDIR"
 chown -R "$USRGRP" "$CHROOT/$CDDA_SHARED_FILES"
+chown -R "$USRGRP" "$CHROOT/$SHARE_DIR"
 
 # Curses junk
 if [ -n "$TERMDATA" ]; then
