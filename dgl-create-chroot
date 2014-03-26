@@ -41,10 +41,8 @@ CDDASUBDIR="cdda/"
 # dir for shared files
 DGLROOT="dgldir/"
 
-SHARE_DIR="$DGLROOTshare/"
-CDDA_SHARED_FILES="$SHARE_DIRcataclysm-dda/"
-
-DGLROOT="dgldir/"
+SHARE_DIR="dgldir/share/"
+CDDA_SHARED_FILES="dgldir/share/cataclysm-dda/"
 
 # only define this if dgl was configured with --enable-sqlite
 SQLITE_DBFILE="dgldir/dgamelaunch.db"
