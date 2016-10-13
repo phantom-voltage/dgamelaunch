@@ -11,8 +11,7 @@
  c) Change password
  e) Change email address
  w) Watch games in progress
- o) Edit options
- p) Play NetHack 3.4.3
+ p) Play Cataclysm-DDA (Shared map)
  q) Quit
 
  =>
