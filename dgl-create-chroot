@@ -173,7 +173,7 @@ chown -R "$USRGRP" "$CHROOT/banners"
 #chown -R "$USRGRP" "$CHROOT/$SHARE_DIR"
 
 
-mkdir "$CHROOT/$CDDASUBDIR"
+mkdir -p "$CHROOT/$CDDASUBDIR"
 if [ -n "$CDDABIN" -a ! -e "$CDDABIN" ]; then
   errorexit "Cannot find Cataclysm-DDA binary $CDDABIN"
 fi
