@@ -1,0 +1,22 @@
+$ATTR(10) ## $SERVERID$ATTR(10) - $ATTR(7)Game Menu $ATTR(10)
+ ## $ATTR(7)Available games:$ATTR(10)
+ ## $ATTR(9)-Ancient Domains of Mystery$ATTR(10)
+ ## $ATTR(9)-Angband$ATTR(10)
+ ## $ATTR(9)-Brogue$ATTR(10)
+ ## $ATTR(9)-Cataclysm: Dark Days Ahead (Shared Map)$ATTR(10)  
+ ## $ATTR(9)-Dungeon Crawl Stone Soup$ATTR(10)  
+ ## $ATTR(9)-Poschengband$ATTR(10)  
+ ## $ATTR(9)-Sil$ATTR(10)
+ ## $ATTR(9)-The Slimy Lichmummy$ATTR(10)
+ ## Join us on $ATTR(13)##roguenexus$ATTR(10) on $ATTR(13)irc.freenode.net
+
+
+$ATTR(1) Logged in as: $ATTR(5)$USERNAME
+$ATTR(9)
+$ATTR(10) a) A$ATTR(9)DOM                                $ATTR(10) d) D$ATTR(9)CSS 
+$ATTR(10) b) B$ATTR(9)ROGUE                              $ATTR(10) g) $ATTR(9)AN$ATTR(10)G$ATTR(9)BAND 
+$ATTR(10) c) C$ATTR(9)DDA (Shared Map)                   $ATTR(10) p) P$ATTR(9)OSCHENGBAND 
+$ATTR(10) w) W$ATTR(9)atch players online                $ATTR(10) s) S$ATTR(9)IL 
+$ATTR(10) q) Q$ATTR(9)uit to main menu                   $ATTR(10) t) T$ATTR(9)HE SLIMY LICHMUMMY
+
+ =>

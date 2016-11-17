@@ -1,0 +1,22 @@
+$ATTR(10) ## $SERVERID$ATTR(10) - $ATTR(7)Cataclysm: Dark Days Ahead$ATTR(10)
+ ##
+ ## $ATTR(9)-Play in an ever changing world with other players!$ATTR(10)
+ ## $ATTR(9)-Shared Maps means you can come across the remains and loot of other players.$ATTR(10)
+ ## $ATTR(9)-See MOTD in CDDA for info on each world.$ATTR(10)
+ ##
+ ## $ATTR(9)-If using webterminal, it is recommended to disable animations.$ATTR(10)
+ ##
+ ## 
+ ## 
+ ## Join us on $ATTR(13)##roguenexus$ATTR(10) on $ATTR(13)irc.freenode.net
+
+
+$ATTR(1) Logged in as: $ATTR(5)$USERNAME
+$ATTR(9)
+$ATTR(10) c)$ATTR(9) Play $ATTR(10)C$ATTR(9)DDA $ATTR(4)
+$ATTR(10) m) M$ATTR(9)emorial
+$ATTR(10) w) W$ATTR(9)atch players online 
+$ATTR(10) q) Q$ATTR(9)uit to main menu
+
+
+ =>

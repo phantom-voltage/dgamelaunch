@@ -1,0 +1,17 @@
+$ATTR(10)## $SERVERID $ATTR(10)
+
+$ATTR(9) Software Used 
+$ATTR(5)-----------------------------------------------------$ATTR(10)
+ dgamelaunch
+ butterfly
+ ADOM
+ Brogue
+ Cataclysm DDA
+ 
+
+$ATTR(5)------------------------------------------------------$ATTR(10)
+ This will be updated with full information for people
+ responsible for this software.
+
+$ATTR(1)
+ q) Q$ATTR(9)uit to main menu
