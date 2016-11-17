@@ -40,7 +40,7 @@ CDDADIR="/Cataclysm-DDA/"
 #fi
 SERVERNAME="roguenexus"
 # CDDASUBDIR from include/config.h; aka cataclysm subdir inside chroot
-CDDASUBDIR="/games/cdda/"
+CDDASUBDIR="games/cdda/"
 # dir for shared files
 DGLROOT="dgldir/"
 
