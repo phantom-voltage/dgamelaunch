@@ -170,7 +170,7 @@ cd banners
 chmod go+r *
 cd ..
 chown -R "$USRGRP" "$CHROOT/banners"
-chown -R "$USRGRP" "$CHROOT/$SHARE_DIR"
+#chown -R "$USRGRP" "$CHROOT/$SHARE_DIR"
 
 
 mkdir "$CHROOT/$CDDASUBDIR"
@@ -206,7 +206,7 @@ fi
 
 chown -R "$USRGRP" "$CHROOT/$CDDASUBDIR"
 chown -R "$USRGRP" "$CHROOT/$CDDA_SHARED_FILES"
-chown -R "$USRGRP" "$CHROOT/$SHARE_DIR"
+#chown -R "$USRGRP" "$CHROOT/$SHARE_DIR"
 
 # Curses junk
 if [ -n "$TERMDATA" ]; then
