@@ -162,13 +162,14 @@ sed -i "s/MYSERVERNAMEHERE/$SERVERNAME/g" ./dgamelaunch.conf
 cd ..
 
 mkdir banners
-cp -r "$CURDIR/examples/banners/" ./banners
+cp -r "$CURDIR/examples/banners/" banners
 #cp "$CURDIR/examples/dgl_menu_main_user.txt" ./banners
 #cp "$CURDIR/examples/dgl_menu_watchmenu_help.txt" ./banners
 #cp "$CURDIR/examples/dgl-banner" ./banners
 cd banners
-chmod go+r *.txt
+chmod go+r *
 cd ..
+chown -R "$USRGRP" "$CHROOT/banners"
 chown -R "$USRGRP" "$CHROOT/$SHARE_DIR"
 
 
