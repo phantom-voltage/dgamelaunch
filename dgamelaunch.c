@@ -66,14 +66,14 @@
 # include <sqlite3.h>
 #endif
 
-#ifndef __FreeBSD__
-# ifdef __APPLE__
-#  include <unistd.h>
-# else
-#  include <crypt.h>
-# endif
-#else
+#if defined(__FreeBSD__)
 # include <libutil.h>
+#elif defined(__NetBSD__)
+# include <util.h>
+#elif defined(__APPLE__)
+# include <unistd.h>
+#else
+# include <crypt.h>
 #endif
 
 #ifdef __linux__
@@ -971,12 +971,12 @@ game_get_column_data(struct dg_game *game,
 	    snprintf(tmptimebuf, 30, "%s %s", game->date, game->time);
 	    tmptimebuf[31] = '\0';
 	    strptime(tmptimebuf, "%Y-%m-%d %H:%M:%S", &timetm);
-	    snprintf(data, 10, get_timediff(ctime, mktime(&timetm)));
+	    snprintf(data, 10, "%s", get_timediff(ctime, mktime(&timetm)));
 	}
 	break;
 
     case SORTMODE_IDLETIME:
-	snprintf(data, 10, get_timediff(ctime, game->idle_time));
+	snprintf(data, 10, "%s", get_timediff(ctime, game->idle_time));
         break;
 
     case SORTMODE_EXTRA_INFO:
@@ -1212,7 +1212,7 @@ inprogressmenu (int gameid)
 	    break;
 
 	case 12: case 18: /* ^L, ^R */
-	  if (globalconfig.utf8esc) write(1, "\033%G", 3);
+          if (globalconfig.utf8esc) (void) write(1, "\033%G", 3);
 	  clear ();
 	  break;
 
@@ -1251,7 +1251,7 @@ watchgame:
               clear ();
               refresh ();
               endwin ();
-	      if (globalconfig.utf8esc) write(1, "\033%G", 3);
+	      if (globalconfig.utf8esc) (void) write(1, "\033%G", 3);
 #ifdef USE_SHMEM
 	      signals_block();
 	      if (games[idx]->is_in_shm) {
@@ -1782,7 +1782,7 @@ initcurses ()
   init_pair(10, COLOR_BLACK, COLOR_BLACK);
   init_pair(11, -1, -1);
 
-  if (globalconfig.utf8esc) write(1, "\033%G", 3);
+  if (globalconfig.utf8esc) (void) write(1, "\033%G", 3);
 #endif
   clear();
   refresh();
@@ -2051,9 +2051,13 @@ newuser ()
 int
 passwordgood (char *cpw)
 {
+  char *crypted;
   assert (me != NULL);
 
-  if (!strncmp (crypt (cpw, cpw), me->password, DGL_PASSWDLEN))
+  crypted = crypt (cpw, cpw);
+  if (crypted == NULL)
+      return 0;
+  if (!strncmp (crypted, me->password, DGL_PASSWDLEN))
     return 1;
   if (!strncmp (cpw, me->password, DGL_PASSWDLEN))
     return 1;
@@ -2262,7 +2266,7 @@ userexist (char *cname, int isnew)
     if (isnew && (strlen(cname) >= globalconfig.max_newnick_len))
 	strcat(tmpbuf, "%");
 
-    qbuf = sqlite3_mprintf("select * from dglusers where username like '%q' limit 1", tmpbuf);
+    qbuf = sqlite3_mprintf("select * from dglusers where username = '%q' collate nocase limit 1", tmpbuf);
 
     ret = sqlite3_open(globalconfig.passwd, &db);
     if (ret) {
@@ -2629,7 +2633,7 @@ runmenuloop(struct dg_menu *menu)
 	term_resize_check();
 	if (doclear) {
 	    doclear = 0;
-	    if (globalconfig.utf8esc) write(1, "\033%G", 3);
+	    if (globalconfig.utf8esc) (void) write(1, "\033%G", 3);
 	    clear();
 	}
 	drawbanner(&ban);
@@ -2719,15 +2723,15 @@ main (int argc, char** argv)
 
   __progname = basename(strdup(argv[0]));
 
-  while ((c = getopt(argc, argv, "c:sqh:pi:aeW:SD")) != -1)
+  while ((c = getopt(argc, argv, "csqh:pi:aeW:SD")) != -1)
   {
+      /* Stop processing arguments at -c, so that user-provided
+       * commands (via ssh for example) to the dgamelaunch login
+       * shell are ignored.
+       */
+    if (c == 'c') break;
     switch (c)
     {
-      case 'c':
-        fprintf(stderr, "This is not a shell account, you can't execute "
-                        "arbitrary commands.\n");
-        graceful_exit(15);
-        break;
       case 's':
 	showplayers = 1; break;
 
