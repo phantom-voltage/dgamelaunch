@@ -1,7 +1,8 @@
 #!/bin/sh
 
 # Ideas and some parts from the original dgl-create-chroot (by joshk@triplehelix.org, modifications by jilles@stack.nl)
-# This one by paxed@alt.org
+# Plus modifications by paxed@alt.org
+# This one by codehero@nerdpol.ch
 
 
 #
@@ -10,22 +11,44 @@
 
 
 # Same as chroot_path in dgl config file
-CHROOT="/opt/nethack/nethack.alt.org/"
+CHROOT="/opt/roguenexus/dgamelaunch"
 # the user & group from dgamelaunch config file.
 USRGRP="games:games"
 # COMPRESS from include/config.h; the compression binary to copy. leave blank to skip.
-COMPRESSBIN="/bin/gzip"
-# nethack binary to copy into chroot (leave blank to skip)
-#NETHACKBIN="/home/paxed/hacking/coding/nethacksource/nethack-3.4.3-nao/nh343/nethack.343-nao"
-# fixed data to copy (leave blank to skip)
-#NH_PLAYGROUND_FIXED="/home/paxed/hacking/coding/nethacksource/nethack-3.4.3-nao/nh343/"
-# HACKDIR from include/config.h; aka nethack subdir inside chroot
-NHSUBDIR="/nh343/"
-# VAR_PLAYGROUND from include/unixconf.h
-NH_VAR_PLAYGROUND="/nh343/var/"
+#COMPRESSBIN="/bin/gzip"
+# cdda binary to copy into chroot (leave blank to skip)
+echo "Please input the FULL path of the cataclysm binary. Leave empty for /home/$USER/Cataclysm-DDA/cataclysm"
+#read CDDABIN
+CDDABIN="/Cataclysm-DDA/cataclysm"
+#if [ -z $CDDABIN ]
+#then
+#CDDABIN="/home/$USER/Cataclysm-DDA/cataclysm"
+#fi
+# dir to copy shared data from
+echo "Please input the FULL path of the Cataclysm-DDA folder. Leave empty for /home/$USER/Cataclysm-DDA/"
+CDDADIR="/Cataclysm-DDA/"
+#read CDDADIR
+#if [ -z $CDDADIR ]
+#then
+#CDDADIR="/home/$USER/Cataclysm-DDA/"
+#fi
+#echo "Please input the name of your server"
+#read SERVERNAME
+#if [ -z $SERVERNAME ]
+#then
+#SERVERNAME=MYSERVERNAMEHERE
+#fi
+SERVERNAME="roguenexus"
+# CDDASUBDIR from include/config.h; aka cataclysm subdir inside chroot
+CDDASUBDIR="games/cdda/"
+# dir for shared files
+DGLROOT="dgldir/"
+
+SHARE_DIR="dgldir/share/"
+CDDA_SHARED_FILES="dgldir/share/cdda/"
 
 # only define this if dgl was configured with --enable-sqlite
-SQLITE_DBFILE="/dgldir/dgamelaunch.db"
+SQLITE_DBFILE="dgldir/dgamelaunch.db"
 
 # END OF CONFIG
 ##############################################################################
@@ -91,9 +114,9 @@ chown "$USRGRP" dgldir mail
 cp "$CURDIR/dgamelaunch" "$DGLFILE"
 ln -s "$DGLFILE" dgamelaunch
 
-mkdir -p "$CHROOT/dgldir/inprogress-nh343"
+mkdir -p "$CHROOT/dgldir/inprogress_ttyrec/cdda"
 mkdir -p "$CHROOT/dgldir/userdata"
-chown "$USRGRP" "$CHROOT/dgldir/inprogress-nh343"
+chown "$USRGRP" "$CHROOT/dgldir/inprogress_ttyrec/cdda"
 chown "$USRGRP" "$CHROOT/dgldir/userdata"
 
 
@@ -128,76 +151,63 @@ cd ..
 
 
 cd etc
+
+echo "Copying dgamelaunch to chroot"
 cp "$CURDIR/examples/dgamelaunch.conf" .
-echo "Edit $CHROOT/etc/dgamelaunch.conf to suit your needs."
+
+echo "editing dgamelaunch.conf to use the correct server name"
+sed -i "s/MYSERVERNAMEHERE/$SERVERNAME/g" ./dgamelaunch.conf
+
 [ -f /etc/localtime ] && cp /etc/localtime .
 cd ..
 
-
-cd bin
-cp "$CURDIR/ee" .
-cp "$CURDIR/virus" .
-echo "Copied text editors 'ee' and 'virus' to chroot."
+mkdir banners
+cp  $CURDIR/examples/banners/* banners/
+#cp "$CURDIR/examples/dgl_menu_main_user.txt" ./banners
+#cp "$CURDIR/examples/dgl_menu_watchmenu_help.txt" ./banners
+#cp "$CURDIR/examples/dgl-banner" ./banners
+cd banners
+chmod go+r *
 cd ..
+chown -R "$USRGRP" "$CHROOT/banners"
+#chown -R "$USRGRP" "$CHROOT/$SHARE_DIR"
 
 
-cp "$CURDIR/examples/dgl_menu_main_anon.txt" .
-cp "$CURDIR/examples/dgl_menu_main_user.txt" .
-cp "$CURDIR/examples/dgl_menu_watchmenu_help.txt" .
-cp "$CURDIR/examples/dgl-banner" .
-cp "$CURDIR/dgl-default-rcfile" "dgl-default-rcfile.nh343"
-chmod go+r dgl_menu_main_anon.txt dgl_menu_main_user.txt dgl-banner dgl-default-rcfile.nh343
-
-NHSUBDIR="`echo ${NHSUBDIR%/}`"
-NHSUBDIR="`echo ${NHSUBDIR#/}`"
-
-mkdir "$CHROOT/$NHSUBDIR"
-
-if [ -n "$NETHACKBIN" -a ! -e "$NETHACKBIN" ]; then
-  errorexit "Cannot find NetHack binary $NETHACKBIN"
+mkdir -p "$CHROOT/$CDDASUBDIR"
+if [ -n "$CDDABIN" -a ! -e "$CDDABIN" ]; then
+  errorexit "Cannot find Cataclysm-DDA binary $CDDABIN"
 fi
 
-if [ -n "$NETHACKBIN" -a -e "$NETHACKBIN" ]; then
-  echo "Copying $NETHACKBIN"
-  cd "$NHSUBDIR"
-  NHBINFILE="`basename $NETHACKBIN`.`date +%Y%m%d`"
-  cp "$NETHACKBIN" "$NHBINFILE"
-  ln -s "$NHBINFILE" nethack
-  LIBS="$LIBS `findlibs $NETHACKBIN`"
+if [ -n "$CDDABIN" -a -e "$CDDABIN" ]; then
+  echo "Copying $CDDABIN"
+  cd "$CDDASUBDIR"
+  echo "-pwd is `pwd`"
+  CDDABINFILE="`basename $CDDABIN`.`date +%Y%m%d`"
+  echo "-copying $CDDABIN to $CDDABINFILE"
+  cp "$CDDABIN" "$CDDABINFILE"
+  echo "-creating symlink cataclysm to $CDDABINFILE"
+  ln -s "$CDDABINFILE" cataclysm
+  LIBS="$LIBS `findlibs $CDDABIN`"
   cd "$CHROOT"
 fi
 
 
-NH_PLAYGROUND_FIXED="`echo ${NH_PLAYGROUND_FIXED%/}`"
+mkdir -p "$CHROOT/$CDDA_SHARED_FILES"
+mkdir -p "$CHROOT/$CDDA_SHARED_FILES/memorial"
+DATAFILES="data/*"
 
-if [ -n "$NH_PLAYGROUND_FIXED" -a -d "$NH_PLAYGROUND_FIXED" ]; then
-  echo "Copying NetHack playground stuff."
-  NHFILES="*.lev *.dat cmdhelp data dungeon help hh history license opthelp options oracles recover rumors wizhelp"
-  for fil in $NHFILES; do
-    cp $NH_PLAYGROUND_FIXED/$fil "$CHROOT/$NHSUBDIR/"
+if [ -n "$CDDA_SHARED_FILES" -a -d "$CDDA_SHARED_FILES" ]; then
+  echo "Copying Cataclysm-DDA shared data"
+  cp -LR $CDDADIR$DATAFILES "$CHROOT/$CDDA_SHARED_FILES"
+  SHARED_DATA="data lua lang gfx"
+  for fil in $SHARED_DATA; do
+    cp -LR $CDDADIR$fil "$CHROOT/$CDDA_SHARED_FILES"
   done
 fi
 
-
-NH_VAR_PLAYGROUND="`echo ${NH_VAR_PLAYGROUND%/}`"
-NH_VAR_PLAYGROUND="`echo ${NH_VAR_PLAYGROUND#/}`"
-
-echo "Creating NetHack variable dir stuff."
-if [ -n "$NH_VAR_PLAYGROUND" ]; then
-  mkdir -p "$CHROOT/$NH_VAR_PLAYGROUND"
-  chown -R "$USRGRP" "$CHROOT/$NH_VAR_PLAYGROUND"
-fi
-mkdir -p "$CHROOT/$NH_VAR_PLAYGROUND/save"
-chown -R "$USRGRP" "$CHROOT/$NH_VAR_PLAYGROUND/save"
-touch "$CHROOT/$NH_VAR_PLAYGROUND/logfile"
-touch "$CHROOT/$NH_VAR_PLAYGROUND/perm"
-touch "$CHROOT/$NH_VAR_PLAYGROUND/record"
-touch "$CHROOT/$NH_VAR_PLAYGROUND/xlogfile"
-
-chown -R "$USRGRP" "$CHROOT/$NHSUBDIR"
-chown -R "$USRGRP" "$CHROOT/$NH_VAR_PLAYGROUND"
-
-
+chown -R "$USRGRP" "$CHROOT/$CDDASUBDIR"
+chown -R "$USRGRP" "$CHROOT/$CDDA_SHARED_FILES"
+#chown -R "$USRGRP" "$CHROOT/$SHARE_DIR"
 
 # Curses junk
 if [ -n "$TERMDATA" ]; then
@@ -217,9 +227,18 @@ LIBS=`for lib in $LIBS; do echo $lib; done | sort | uniq`
 echo "Copying libraries:" $LIBS
 for lib in $LIBS; do
         mkdir -p "$CHROOT`dirname $lib`"
-        cp $lib "$CHROOT$lib"
+        cp $lib "$CHROOT/$lib"
 done
 
+echo "Copying locale"
+mkdir -p $CHROOT/usr/lib/locale/
+cp -LR /usr/lib/locale/* $CHROOT/usr/lib/locale/
+
+echo "chowning  $CHROOT/$DGLROOT to make sure the permissions are correct"
+chown -R "$USERGRP" "$CHROOT/$DGLROOT"
+
+echo "Go to $CHROOT, execute dgamelaunch as root, and create an 'admin' user before setting up ssh/telnet!"
+echo "You should also use this opportunity to test if Cataclysm-DDA runs, if it doesn't please contact me at codehero@nerdpol.ch or C0DEHERO on github."
 
 echo "Finished."
 
