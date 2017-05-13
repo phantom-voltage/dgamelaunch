@@ -1,3 +1,9 @@
+##CHANGES##
+Uses separate banner directory, and copies them over when creating the chroot.
+Useful if you have many banners for different games.
+
+Also some directories changed, and chroot set up changed for Cataclsym DDA.
+
 dgamelaunch
 ===========
 
