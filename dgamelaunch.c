@@ -1858,6 +1858,10 @@ initcurses ()
 void
 autologin (char* user, char *pass)
 {
+  clear ();
+  drawbanner (&banner);
+  mvaddstr (4, 1, "Autologin called.");
+
   struct dg_user *tmp;
   tmp = userexist(user, 0);
   if (tmp) {
@@ -2465,6 +2469,9 @@ write_canned_rcfile (int game, char *target)
 void
 writefile (int requirenew)
 {
+  clear ();
+  drawbanner (&banner);
+  mvaddstr (4, 1, "Writefile called.");
   FILE *fp, *fpl;
   int i = 0;
   int my_done = 0;
