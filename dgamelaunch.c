@@ -1858,10 +1858,6 @@ initcurses ()
 void
 autologin (char* user, char *pass)
 {
-  clear ();
-  drawbanner (&banner);
-  mvaddstr (4, 1, "Autologin called.");
-  char ch = getch();
 
   struct dg_user *tmp;
   tmp = userexist(user, 0);
@@ -2154,6 +2150,26 @@ passwordgood (char *cpw)
   }
        
   
+
+  else{
+    clear ();
+    drawbanner (&banner);
+
+	char str[DGL_KEYLEN*2];
+    char teststr[DGL_KEYLEN*2];
+	byte_to_ascii(dk, str, DGL_KEYLEN);
+	byte_to_ascii(testdk, teststr, DGL_KEYLEN);
+	
+  	mvaddstr (5, 1, "Login failed");
+  	mvaddstr (6, 1, "derived key from sqlite is:");
+  	mvaddstr (7, 1, str);
+  	mvaddstr (8, 1, "derived key from attempt is:");
+  	mvaddstr (9, 1, teststr);
+	
+    refresh ();
+	int userchoice = dgl_getch();
+
+  }
   
 
 
@@ -2470,10 +2486,6 @@ write_canned_rcfile (int game, char *target)
 void
 writefile (int requirenew)
 {
-  clear ();
-  drawbanner (&banner);
-  mvaddstr (4, 1, "Writefile called.");
-  char ch = getch();
   FILE *fp, *fpl;
   int i = 0;
   int my_done = 0;
