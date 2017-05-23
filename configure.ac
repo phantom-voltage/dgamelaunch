@@ -26,7 +26,7 @@ fi
 
 case "$(uname -s)" in
   Linux | *BSD)
-    MY_LIBS="$MY_LIBS -lutil -lcrypt"
+    MY_LIBS="$MY_LIBS -lutil -lcrypt -lcrypto"
     AC_DEFINE(NOSTREAMS, 1, [Don't use SVR4 streams support in ttyrec.])
   ;;
 esac

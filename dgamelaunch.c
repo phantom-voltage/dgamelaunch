@@ -1540,8 +1540,8 @@ changepw (int dowrite)
 
       if (mygetnstr (buf, DGL_PASSWDLEN, 0) != OK)
       {
-	memset_s(buf, '\0', strlen(buf));
-	memset_s(repeatbuf, '\0', strlen(repeatbuf));
+	explicit_bzero(buf,  strlen(buf));
+	explicit_bzero(repeatbuf,  strlen(repeatbuf));
 	free(buf);
 	free(repeatbuf);
         return 0;
@@ -1549,8 +1549,8 @@ changepw (int dowrite)
 
       if (*buf == '\0')
       {
-	memset_s(buf, '\0', strlen(buf));
-	memset_s(repeatbuf, '\0', strlen(repeatbuf));
+	explicit_bzero(buf,  strlen(buf));
+	explicit_bzero(repeatbuf, strlen(repeatbuf));
 	free(buf);
 	free(repeatbuf);
         return 0;
@@ -1558,8 +1558,8 @@ changepw (int dowrite)
 
       if (strchr (buf, ':') != NULL) {
 	debug_write("cannot have ':' in passwd");
-	memset_s(buf, '\0', strlen(buf));
-	memset_s(repeatbuf, '\0', strlen(repeatbuf));
+	explicit_bzero(buf,  strlen(buf));
+	explicit_bzero(repeatbuf,  strlen(repeatbuf));
 	
 	free(buf);
 	free(repeatbuf);
@@ -1571,8 +1571,8 @@ changepw (int dowrite)
 
       if (mygetnstr (repeatbuf, DGL_PASSWDLEN, 0) != OK)
       {
-	memset_s(buf, '\0', strlen(buf));
-	memset_s(repeatbuf, '\0', strlen(repeatbuf));
+	explicit_bzero(buf,  strlen(buf));
+	explicit_bzero(repeatbuf,  strlen(repeatbuf));
 	free(buf);
 	free(repeatbuf);
 	return 0;
@@ -1581,7 +1581,7 @@ changepw (int dowrite)
       if (!strcmp (buf, repeatbuf))
 	  {
 		error = 0;
-		memset_s(repeatbuf, '\0', strlen(repeatbuf));
+		explicit_bzero(repeatbuf,  strlen(repeatbuf));
 		free(repeatbuf);
 	  }
       else
@@ -1603,12 +1603,12 @@ changepw (int dowrite)
 
   
   if(!PKCS5_PBKDF2_HMAC_SHA1(buf, strlen(buf), salt, DGL_SALTLEN, DGL_ITERATION, DGL_KEYLEN, dk)){
-      memset_s(buf, '\0', strlen(buf));
+      explicit_bzero(buf,  strlen(buf));
       free(buf);
       return 0;
   }
 
-  memset_s(buf, '\0', strlen(buf));
+  explicit_bzero(buf,  strlen(buf));
   free(buf);
   byte_to_ascii(dk, adk, DGL_KEYLEN);
   byte_to_ascii(salt, asalt, DGL_SALTLEN);
@@ -1930,14 +1930,14 @@ loginprompt (int from_ttyplay)
   refresh ();
 
   if (mygetnstr (pw_buf, DGL_PASSWDLEN, 0) != OK){
-      memset_s(pw_buf, '\0', strlen(pw_buf));
+      explicit_bzero(pw_buf,  strlen(pw_buf));
       free(pw_buf);
       return;
   }
 
   if (passwordgood (pw_buf))
     {
-        memset_s(pw_buf, '\0', strlen(pw_buf));
+        explicit_bzero(pw_buf,  strlen(pw_buf));
 	free(pw_buf);
 	if (me->flags & DGLACCT_LOGIN_LOCK) {
 	    clear ();
@@ -1955,7 +1955,7 @@ loginprompt (int from_ttyplay)
     }
   else 
   {
-    memset_s(pw_buf, '\0', strlen(pw_buf));
+    explicit_bzero(pw_buf,  strlen(pw_buf));
     free(pw_buf);
     me = NULL;
     if (from_ttyplay == 1)
