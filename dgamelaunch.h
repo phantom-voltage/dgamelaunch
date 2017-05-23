@@ -362,8 +362,6 @@ void compat_init_setproctitle(int argc, char *argv[]);
 void setproctitle(const char *fmt, ...);
 #endif
 
-extern salt_gen();
-
 /* strlcpy.c */
 extern size_t strlcpy (char *dst, const char *src, size_t siz);
 extern size_t strlcat (char *dst, const char *src, size_t siz);
