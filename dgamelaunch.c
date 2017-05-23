@@ -2568,7 +2568,7 @@ writefile (int requirenew)
     char *qbuf;
 
     if (requirenew) {
-	qbuf = sqlite3_mprintf("insert into dglusers (username, email, env, salt, password, flags) values ('%q', '%q', '%q', '%q', %li)", me->username, me->email, me->env, me->salt, me->password, me->flags);
+	qbuf = sqlite3_mprintf("insert into dglusers (username, email, env, salt, password, flags) values ('%q', '%q', '%q', '%q', '%q', %li)", me->username, me->email, me->env, me->salt, me->password, me->flags);
     } else {
 	qbuf = sqlite3_mprintf("update dglusers set username='%q', email='%q', env='%q', salt='%q', password='%q', flags=%li where id=%i", me->username, me->email, me->env, me->salt,  me->password, me->flags, me->id);
     }
