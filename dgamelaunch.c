@@ -1615,6 +1615,20 @@ changepw (int dowrite)
 
   free(me->salt);
   free(me->password);
+  clear ();
+  drawbanner (&banner);
+
+  	mvaddstr (5, 1, "Writing passwords");
+  	mvaddstr (6, 1, "derived key in ascii is:");
+  	mvaddstr (7, 1, adk);
+  	mvaddstr (8, 1, "derived key is:");
+  	mvaddstr (9, 1, dk);
+ 	mvaddstr (10, 1, "salt in ascii is :");
+  	mvaddstr (11, 1, asalt);
+
+	refresh ();
+	int userchoice = dgl_getch();
+
 
   me->salt = strdup(asalt);
   me->password = strdup(adk);
@@ -2165,6 +2179,8 @@ passwordgood (char *cpw)
   	mvaddstr (7, 1, str);
   	mvaddstr (8, 1, "derived key from attempt is:");
   	mvaddstr (9, 1, teststr);
+ 	mvaddstr (10, 1, "dk is :");
+  	mvaddstr (11, 1, dk);
 	
     refresh ();
 	int userchoice = dgl_getch();
