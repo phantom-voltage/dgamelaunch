@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <string.h>
 
 #ifdef USE_SHMEM
 #include <semaphore.h>
@@ -26,7 +27,7 @@
 /* crypto stuff */
 #define DGL_SALTLEN 32
 #define DGL_ITERATION 100000
-#define DGL_KEYLEN
+#define DGL_KEYLEN 32
 
 #define DGL_MAXWATCHCOLS 10
 

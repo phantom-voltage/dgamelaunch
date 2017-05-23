@@ -1579,9 +1579,11 @@ changepw (int dowrite)
       }
 
       if (!strcmp (buf, repeatbuf))
-        error = 0;
-	memset_s(repeatbuf, '\0', strlen(repeatbuf));
-	free(repeatbuf);
+	  {
+		error = 0;
+		memset_s(repeatbuf, '\0', strlen(repeatbuf));
+		free(repeatbuf);
+	  }
       else
         error = 1;
     }
@@ -1600,7 +1602,7 @@ changepw (int dowrite)
   
 
   
-  if(!PKCS5_PBKDF2_HMAC_SHA1(buf, strlen(buf), salt, strlen(salt), DGL_ITERATION, DGL_KEYLEN, dk)){
+  if(!PKCS5_PBKDF2_HMAC_SHA1(buf, strlen(buf), salt, DGL_SALTLEN, DGL_ITERATION, DGL_KEYLEN, dk)){
       memset_s(buf, '\0', strlen(buf));
       free(buf);
       return 0;
@@ -1608,13 +1610,14 @@ changepw (int dowrite)
 
   memset_s(buf, '\0', strlen(buf));
   free(buf);
-  byte_to_ascii(dk, aDk, DGL_KEYLEN);
+  byte_to_ascii(dk, adk, DGL_KEYLEN);
+  byte_to_ascii(salt, asalt, DGL_SALTLEN);
 
   free(me->salt);
   free(me->password);
 
-  me->salt = strdup(salt);
-  me->password = strdup(aDk);
+  me->salt = strdup(asalt);
+  me->password = strdup(adk);
 
   //me->password = strdup (crypt (buf, buf));
 
