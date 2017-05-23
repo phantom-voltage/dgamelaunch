@@ -1608,6 +1608,7 @@ changepw (int dowrite)
       return 0;
   }
 
+  
   memset_s(buf, 0, strlen(buf));
   free(buf);
   byte_to_ascii(dk, adk, DGL_KEYLEN);
@@ -1618,13 +1619,13 @@ changepw (int dowrite)
   clear ();
   drawbanner (&banner);
 
-  	mvaddstr (5, 1, "Writing passwords");
-  	mvaddstr (6, 1, "derived key in ascii is:");
-  	mvaddstr (7, 1, adk);
-  	mvaddstr (8, 1, "derived key is:");
-  	mvaddstr (9, 1, dk);
- 	mvaddstr (10, 1, "salt in ascii is :");
-  	mvaddstr (11, 1, asalt);
+ mvaddstr (5, 1, "Writing passwords");
+ mvaddstr (6, 1, "derived key in ascii is:");
+ mvaddstr (7, 1, adk);
+ mvaddstr (8, 1, "derived key is:");
+ mvaddstr (9, 1, dk);
+ //mvaddstr (10, 1, "salt in ascii is :");
+ //mvaddstr (11, 1, asalt);
 
 	refresh ();
 	int userchoice = dgl_getch();
