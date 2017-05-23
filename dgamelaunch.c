@@ -1602,10 +1602,10 @@ changepw (int dowrite)
   }
   
 
-  mvaddstr(15, 1, buf);
+  mvaddstr(15, 1, "password was %s", buf);
   if (strlen(buf) < 3)
 	{
-		mvaddstr(3,1, "uh oh something's wrong with buf");
+		mvaddstr(16,1, "uh oh something's wrong with buf");
 	}
   
   if(!PKCS5_PBKDF2_HMAC_SHA1(buf, strlen(buf), salt, DGL_SALTLEN, DGL_ITERATION, DGL_KEYLEN, dk)){
@@ -1617,14 +1617,14 @@ changepw (int dowrite)
   drawbanner (&banner);
   int userchoice;
 
-  if(byte_to_ascii(salt, asalt, DGL_SALTLEN))
+  if(!byte_to_ascii(salt, asalt, DGL_SALTLEN))
 	{
 		mvaddstr(12,1, "problem converting salt to ascii");
 		userchoice = dgl_getch();
 		return 0;
 	}
 
-  if( byte_to_ascii(dk, adk, DGL_KEYLEN))
+  if(!byte_to_ascii(dk, adk, DGL_KEYLEN))
 	{
 		mvaddstr(12,1, "problem converting dk to ascii");
 		userchoice = dgl_getch();
@@ -2075,9 +2075,7 @@ newuser ()
             error = 1;
         }
 
-      if (strlen (buf) < 2)
-        error = 1;
-
+      if (strlen (buf) < 2) error = 1; 
       if (strlen (buf) == 0)
       {
 	free(me);
