@@ -93,6 +93,10 @@
 #include <unistd.h>
 #include <termios.h>
 
+/* crypto stuff */
+#include <openssl/rand.h>
+#include <openssl/evp.h>
+
 extern FILE* yyin;
 extern int yyparse ();
 
@@ -157,6 +161,7 @@ cpy_me(struct dg_user *me)
 	if (me->email)    tmp->email    = strdup(me->email);
 	if (me->env)      tmp->env      = strdup(me->env);
 	if (me->password) tmp->password = strdup(me->password);
+	if (me->salt)     tmp->salt     = strdup(me->salt);
 	tmp->flags = me->flags;
     }
     return tmp;
@@ -1488,13 +1493,13 @@ change_email ()
 int
 changepw (int dowrite)
 {
-  char buf[DGL_PASSWDLEN+1];
+  //char buf[DGL_PASSWDLEN+1];
   int error = 2;
 
   /* A precondition is that struct `me' exists because we can be not-yet-logged-in. */
   if (!me) {
       debug_write("no 'me' in changepw");
-    graceful_exit (122);        /* Die. */
+      graceful_exit (122);        /* Die. */
   }
 
   if (me->flags & DGLACCT_PASSWD_LOCK) {
@@ -1505,9 +1510,12 @@ changepw (int dowrite)
       return 0;
   }
 
+  char *buf = (char *)malloc((DGL_PASSWDLEN+1) * sizeof(char));
+  char *repeatbuf = (char *)malloc((DGL_PASSWDLEN+1) * sizeof(char));
+
   while (error)
     {
-      char repeatbuf[DGL_PASSWDLEN+1];
+      //char repeatbuf[DGL_PASSWDLEN+1];
       clear ();
 
       drawbanner (&banner);
@@ -1531,13 +1539,30 @@ changepw (int dowrite)
       refresh ();
 
       if (mygetnstr (buf, DGL_PASSWDLEN, 0) != OK)
-	  return 0;
+      {
+	memset_s(buf, '\0', strlen(buf));
+	memset_s(repeatbuf, '\0', strlen(repeatbuf));
+	free(buf);
+	free(repeatbuf);
+        return 0;
+      }
 
       if (*buf == '\0')
+      {
+	memset_s(buf, '\0', strlen(buf));
+	memset_s(repeatbuf, '\0', strlen(repeatbuf));
+	free(buf);
+	free(repeatbuf);
         return 0;
+      }
 
       if (strchr (buf, ':') != NULL) {
-	  debug_write("cannot have ':' in passwd");
+	debug_write("cannot have ':' in passwd");
+	memset_s(buf, '\0', strlen(buf));
+	memset_s(repeatbuf, '\0', strlen(repeatbuf));
+	
+	free(buf);
+	free(repeatbuf);
         graceful_exit (112);
       }
 
@@ -1545,16 +1570,53 @@ changepw (int dowrite)
       mvaddstr (13, 1, "=> ");
 
       if (mygetnstr (repeatbuf, DGL_PASSWDLEN, 0) != OK)
-	  return 0;
+      {
+	memset_s(buf, '\0', strlen(buf));
+	memset_s(repeatbuf, '\0', strlen(repeatbuf));
+	free(buf);
+	free(repeatbuf);
+	return 0;
+      }
 
       if (!strcmp (buf, repeatbuf))
         error = 0;
+	memset_s(repeatbuf, '\0', strlen(repeatbuf));
+	free(repeatbuf);
       else
         error = 1;
     }
 
+  /*Generate salt*/
+  unsigned char salt[DGL_SALTLEN];
+  unsigned char dk[DGL_KEYLEN];
+
+  char asalt[2*DGL_SALTLEN];
+  char adk[2*DGL_KEYLEN];
+  
+  if( !RAND_bytes(salt,DGL_SALTLEN) ){
+      free(buf);
+      return 0;    
+  }
+  
+
+  
+  if(!PKCS5_PBKDF2_HMAC_SHA1(buf, strlen(buf), salt, strlen(salt), DGL_ITERATION, DGL_KEYLEN, dk)){
+      memset_s(buf, '\0', strlen(buf));
+      free(buf);
+      return 0;
+  }
+
+  memset_s(buf, '\0', strlen(buf));
+  free(buf);
+  byte_to_ascii(dk, aDk, DGL_KEYLEN);
+
+  free(me->salt);
   free(me->password);
-  me->password = strdup (crypt (buf, buf));
+
+  me->salt = strdup(salt);
+  me->password = strdup(aDk);
+
+  //me->password = strdup (crypt (buf, buf));
 
   if (dowrite)
     writefile (0);
@@ -1808,7 +1870,9 @@ autologin (char* user, char *pass)
 void
 loginprompt (int from_ttyplay)
 {
-  char user_buf[DGL_PLAYERNAMELEN+1], pw_buf[DGL_PASSWDLEN+2];
+  char user_buf[DGL_PLAYERNAMELEN+1];
+  char* pw_buf;
+  
   int error = 2;
 
   loggedin = 0;
@@ -1855,16 +1919,23 @@ loginprompt (int from_ttyplay)
 
   drawbanner (&banner);
 
+  pw_buf = (char*)malloc((DGL_PASSWDLEN+2)* sizeof(char));
+
   mvaddstr (5, 1, "Please enter your password.");
   mvaddstr (7, 1, "=> ");
 
   refresh ();
 
-  if (mygetnstr (pw_buf, DGL_PASSWDLEN, 0) != OK)
+  if (mygetnstr (pw_buf, DGL_PASSWDLEN, 0) != OK){
+      memset_s(pw_buf, '\0', strlen(pw_buf));
+      free(pw_buf);
       return;
+  }
 
   if (passwordgood (pw_buf))
     {
+        memset_s(pw_buf, '\0', strlen(pw_buf));
+	free(pw_buf);
 	if (me->flags & DGLACCT_LOGIN_LOCK) {
 	    clear ();
 	    mvprintw(5, 1, "Sorry, that account has been banned.--More--");
@@ -1881,6 +1952,8 @@ loginprompt (int from_ttyplay)
     }
   else 
   {
+    memset_s(pw_buf, '\0', strlen(pw_buf));
+    free(pw_buf);
     me = NULL;
     if (from_ttyplay == 1)
     {
@@ -2048,13 +2121,35 @@ newuser ()
 
 /* ************************************************************* */
 
+/* crypto changes */
 int
 passwordgood (char *cpw)
 {
-  char *crypted;
+
+  //char *crypted;
   assert (me != NULL);
 
-  crypted = crypt (cpw, cpw);
+  unsigned char testdk[DGL_KEYLEN];
+  unsigned char dk[DGL_KEYLEN];
+  unsigned char salt[DGL_SALTLEN];
+
+  ascii_to_byte(me->salt, salt, DGL_SALTLEN);
+  ascii_to_byte(me->password, dk, DGL_KEYLEN);
+
+  if(!PKCS5_PBKDF2_HMAC_SHA1(cpw, strlen(cpw), salt, DGL_SALTLEN, DGL_ITERATION, DGL_KEYLEN, testdk)){
+      /* proper error handling needed */
+      return 0;
+  } 
+
+  if(!strncmp(dk,testdk,DGL_KEYLEN)){
+      return 1;
+  }
+       
+  
+  
+
+
+/*  crypted = crypt (cpw, cpw);
   if (crypted == NULL)
       return 0;
 
@@ -2068,6 +2163,7 @@ passwordgood (char *cpw)
 
 #endif
 
+*/
   return 0;
 }
 
@@ -2244,6 +2340,8 @@ userexist_callback(void *NotUsed, int argc, char **argv, char **colname)
 	    userexist_tmp_me->email = strdup(argv[i]);
 	else if (!strcmp(colname[i], "env"))
 	    userexist_tmp_me->env = strdup(argv[i]);
+	else if (!strcmp(colname[i], "salt"))
+	    userexist_tmp_me->salt = strdup(argv[i]);
 	else if (!strcmp(colname[i], "password"))
 	    userexist_tmp_me->password = strdup(argv[i]);
 	else if (!strcmp(colname[i], "flags"))
@@ -2286,6 +2384,7 @@ userexist (char *cname, int isnew)
 	free(userexist_tmp_me->email);
 	free(userexist_tmp_me->env);
 	free(userexist_tmp_me->password);
+	free(userexist_tmp_me->salt);
 	free(userexist_tmp_me);
 	userexist_tmp_me = NULL;
     }
@@ -2457,9 +2556,9 @@ writefile (int requirenew)
     char *qbuf;
 
     if (requirenew) {
-	qbuf = sqlite3_mprintf("insert into dglusers (username, email, env, password, flags) values ('%q', '%q', '%q', '%q', %li)", me->username, me->email, me->env, me->password, me->flags);
+	qbuf = sqlite3_mprintf("insert into dglusers (username, email, env, salt, password, flags) values ('%q', '%q', '%q', '%q', %li)", me->username, me->email, me->env, me->salt, me->password, me->flags);
     } else {
-	qbuf = sqlite3_mprintf("update dglusers set username='%q', email='%q', env='%q', password='%q', flags=%li where id=%i", me->username, me->email, me->env, me->password, me->flags, me->id);
+	qbuf = sqlite3_mprintf("update dglusers set username='%q', email='%q', env='%q', salt='%q', password='%q', flags=%li where id=%i", me->username, me->email, me->env, me->salt,  me->password, me->flags, me->id);
     }
 
     ret = sqlite3_open(globalconfig.passwd, &db);
@@ -2976,3 +3075,57 @@ main (int argc, char** argv)
 
   return 1;
 }
+
+
+//converts ascii representation of hash to bytes 
+//in unsigned char array
+int ascii_to_byte(char *input, unsigned char* output, int keyLen)
+{
+
+
+        if(strlen(input) < keyLen*2)
+        {
+                return 0;
+        }
+
+        char chunk[2];
+
+        int i;
+
+        for (i =0; i < keyLen; i++)
+        {
+
+                chunk[0] = input[2*i];
+                chunk[1] = input[2*i+1];
+                sprintf(output + i, "%c", (unsigned char)strtol(chunk, NULL, 16));
+
+        }
+
+        return 1;
+
+}
+
+//converts byte representation of hash to ascii
+//representation in char array
+int byte_to_ascii(unsigned char* input, char* output, int keyLen)
+{
+
+        if(strlen(input) < keyLen)
+        {
+                return 0;
+        }
+
+        int i;
+
+        for(i = 0; i < keyLen; i++)
+        {
+                sprintf(output + (i * 2), "%02x", input[i]);
+
+        }
+        output[64] = 0;
+
+        return 1;
+
+}
+
+

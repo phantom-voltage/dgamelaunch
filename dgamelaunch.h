@@ -20,8 +20,13 @@
 #define dglsign(x) (x < 0 ? -1 : (x > 0 ? 1 : 0))
 
 #define DGL_PLAYERNAMELEN 30 /* max. length of player name */
-#define DGL_PASSWDLEN 20 /* max. length of passwords */
+#define DGL_PASSWDLEN 32 /* max. length of passwords */
 #define DGL_MAILMSGLEN 80 /* max. length of mail message */
+
+/* crypto stuff */
+#define DGL_SALTLEN 32
+#define DGL_ITERATION 100000
+#define DGL_KEYLEN
 
 #define DGL_MAXWATCHCOLS 10
 
@@ -131,6 +136,7 @@ struct dg_user
   char *email;
   char *env;
   char *password;
+  unsigned char *salt;
   int flags;			/* dgl_acct_flag bitmask */
 };
 
@@ -356,6 +362,8 @@ void compat_init_setproctitle(int argc, char *argv[]);
 void setproctitle(const char *fmt, ...);
 #endif
 
+extern salt_gen();
+
 /* strlcpy.c */
 extern size_t strlcpy (char *dst, const char *src, size_t siz);
 extern size_t strlcat (char *dst, const char *src, size_t siz);
@@ -364,3 +372,7 @@ extern size_t strlcat (char *dst, const char *src, size_t siz);
 extern int mygetnstr(char *buf, int maxlen, int doecho);
 
 #endif
+
+/* crypto stuff */
+extern int ascii_to_byte(char *input, unsigned char* output, int keyLen);
+extern int byte_to_ascii(unsigned char* input, char* output, int keyLen);
