@@ -1592,8 +1592,8 @@ changepw (int dowrite)
   unsigned char salt[DGL_SALTLEN];
   unsigned char dk[32];
 
-  char asalt[2*DGL_SALTLEN];
-  char adk[64];
+  char asalt[(2*DGL_SALTLEN)+1];
+  char adk[65];
   
   if( !RAND_bytes(salt,DGL_SALTLEN) ){
 	  memset_s(buf, 0, strlen(buf));
@@ -2165,9 +2165,9 @@ passwordgood (char *cpw)
   //char *crypted;
   assert (me != NULL);
 
-  unsigned char testdk[DGL_KEYLEN];
-  unsigned char dk[DGL_KEYLEN];
-  unsigned char salt[DGL_SALTLEN];
+  unsigned char testdk[DGL_KEYLEN+1];
+  unsigned char dk[DGL_KEYLEN+1];
+  unsigned char salt[DGL_SALTLEN+1];
 
   ascii_to_byte(me->salt, salt, DGL_SALTLEN);
   ascii_to_byte(me->password, dk, DGL_KEYLEN);
@@ -2187,8 +2187,8 @@ passwordgood (char *cpw)
     clear ();
     drawbanner (&banner);
 
-	char str[DGL_KEYLEN*2];
-    char teststr[DGL_KEYLEN*2];
+	char str[(DGL_KEYLEN*2) +1];
+    char teststr[(DGL_KEYLEN*2) +1];
 	byte_to_ascii(dk, str, DGL_KEYLEN);
 	byte_to_ascii(testdk, teststr, DGL_KEYLEN);
 	
@@ -3180,7 +3180,7 @@ int byte_to_ascii(unsigned char* input, char* output, int keyLen)
                 sprintf(output + (i * 2), "%02x", input[i]);
 
         }
-        output[64] = 0;
+        output[64] = '\0';
 
         return 1;
 
