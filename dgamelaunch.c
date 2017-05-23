@@ -1602,11 +1602,7 @@ changepw (int dowrite)
   }
   
 
-  mvaddstr(15, 1, "password was %s", buf);
-  if (strlen(buf) < 3)
-	{
-		mvaddstr(16,1, "uh oh something's wrong with buf");
-	}
+  mvprintw(15, 1, "password was %s strlen is %d", buf, strlen(buf));
   
   if(!PKCS5_PBKDF2_HMAC_SHA1(buf, strlen(buf), salt, DGL_SALTLEN, DGL_ITERATION, DGL_KEYLEN, dk)){
       memset_s(buf,  0, strlen(buf));
@@ -1616,6 +1612,11 @@ changepw (int dowrite)
   clear ();
   drawbanner (&banner);
   int userchoice;
+
+  mvprintw(16,1, "dk is %s and strlen is %d", dk, strlen(dk));
+
+  refresh();
+  userchoice = dgl_getch();
 
   if(!byte_to_ascii(salt, asalt, DGL_SALTLEN))
 	{
