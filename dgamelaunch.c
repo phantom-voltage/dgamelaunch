@@ -1861,6 +1861,7 @@ autologin (char* user, char *pass)
   clear ();
   drawbanner (&banner);
   mvaddstr (4, 1, "Autologin called.");
+  char ch = getch();
 
   struct dg_user *tmp;
   tmp = userexist(user, 0);
@@ -2472,6 +2473,7 @@ writefile (int requirenew)
   clear ();
   drawbanner (&banner);
   mvaddstr (4, 1, "Writefile called.");
+  char ch = getch();
   FILE *fp, *fpl;
   int i = 0;
   int my_done = 0;
