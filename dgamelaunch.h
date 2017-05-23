@@ -136,7 +136,7 @@ struct dg_user
   char *email;
   char *env;
   char *password;
-  unsigned char *salt;
+  char *salt;
   int flags;			/* dgl_acct_flag bitmask */
 };
 
