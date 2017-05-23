@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <string.h>
+#include <bsd/string.h>
 #include <strings.h>
 
 #ifdef USE_SHMEM
