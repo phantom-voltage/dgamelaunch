@@ -1602,7 +1602,7 @@ changepw (int dowrite)
   }
   
 
-  mvaddstr(4, 1, buf);
+  mvaddstr(15, 1, buf);
   if (strlen(buf) < 3)
 	{
 		mvaddstr(3,1, "uh oh something's wrong with buf");
@@ -1616,6 +1616,19 @@ changepw (int dowrite)
   clear ();
   drawbanner (&banner);
 
+  if(byte_to_ascii(salt, asalt, DGL_SALTLEN))
+	{
+		mvaddstr(12,1, "problem converting salt to ascii");
+		userchoice = dgl_getch();
+		return 0;
+	}
+
+  if( byte_to_ascii(dk, adk, DGL_KEYLEN))
+	{
+		mvaddstr(12,1, "problem converting dk to ascii");
+		userchoice = dgl_getch();
+		return 0;
+	}
  mvaddstr (5, 1, "Writing passwords");
  mvaddstr (6, 1, "derived key in ascii is:");
  mvaddstr (7, 1, adk);
@@ -1631,18 +1644,6 @@ changepw (int dowrite)
   memset_s(buf, 0, strlen(buf));
   free(buf);
   
-  if( byte_to_ascii(dk, adk, DGL_KEYLEN))
-	{
-		mvaddstr(12,1, "problem converting to ascii");
-		userchoice = dgl_getch();
-		return 0;
-	}
-  if(byte_to_ascii(salt, asalt, DGL_SALTLEN))
-	{
-		mvaddstr(12,1, "problem converting to ascii");
-		userchoice = dgl_getch();
-		return 0;
-	}
 		
   free(me->salt);
   free(me->password);
