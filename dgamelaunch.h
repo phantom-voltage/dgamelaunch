@@ -8,9 +8,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <time.h>
-#include <string.h>
-#include <bsd/string.h>
-#include <strings.h>
 
 #ifdef USE_SHMEM
 #include <semaphore.h>
@@ -377,3 +374,4 @@ extern int mygetnstr(char *buf, int maxlen, int doecho);
 /* crypto stuff */
 extern int ascii_to_byte(char *input, unsigned char* output, int keyLen);
 extern int byte_to_ascii(unsigned char* input, char* output, int keyLen);
+extern int memset_s(void *v, int c, size_t n);
