@@ -1615,6 +1615,7 @@ changepw (int dowrite)
   }
   clear ();
   drawbanner (&banner);
+  int userchoice;
 
   if(byte_to_ascii(salt, asalt, DGL_SALTLEN))
 	{
@@ -1638,7 +1639,7 @@ changepw (int dowrite)
  //mvaddstr (11, 1, asalt);
 
 	refresh ();
-	int userchoice = dgl_getch();
+	userchoice = dgl_getch();
 
 
   memset_s(buf, 0, strlen(buf));
