@@ -1590,10 +1590,10 @@ changepw (int dowrite)
 
   /*Generate salt*/
   unsigned char salt[DGL_SALTLEN];
-  unsigned char dk[DGL_KEYLEN];
+  unsigned char dk[32];
 
   char asalt[2*DGL_SALTLEN];
-  char adk[2*DGL_KEYLEN];
+  char adk[64];
   
   if( !RAND_bytes(salt,DGL_SALTLEN) ){
       free(buf);
@@ -1607,15 +1607,6 @@ changepw (int dowrite)
       free(buf);
       return 0;
   }
-
-  
-  memset_s(buf, 0, strlen(buf));
-  free(buf);
-  byte_to_ascii(dk, adk, DGL_KEYLEN);
-  byte_to_ascii(salt, asalt, DGL_SALTLEN);
-
-  free(me->salt);
-  free(me->password);
   clear ();
   drawbanner (&banner);
 
@@ -1630,6 +1621,14 @@ changepw (int dowrite)
 	refresh ();
 	int userchoice = dgl_getch();
 
+
+  memset_s(buf, 0, strlen(buf));
+  free(buf);
+  byte_to_ascii(dk, adk, DGL_KEYLEN);
+  byte_to_ascii(salt, asalt, DGL_SALTLEN);
+
+  free(me->salt);
+  free(me->password);
 
   me->salt = strdup(asalt);
   me->password = strdup(adk);
