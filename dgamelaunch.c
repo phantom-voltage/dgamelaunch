@@ -1540,8 +1540,8 @@ changepw (int dowrite)
 
       if (mygetnstr (buf, DGL_PASSWDLEN, 0) != OK)
       {
-	memset_s(buf, 0  strlen(buf));
-	memset_s(repeatbuf, 0  strlen(repeatbuf));
+	memset_s(buf, 0,  strlen(buf));
+	memset_s(repeatbuf, 0,  strlen(repeatbuf));
 	free(buf);
 	free(repeatbuf);
         return 0;
@@ -1937,7 +1937,7 @@ loginprompt (int from_ttyplay)
 
   if (passwordgood (pw_buf))
     {
-        memset_s(pw_buf,0,  strlen(pw_buf));
+        memset_s(pw_buf, 0, strlen(pw_buf));
 	free(pw_buf);
 	if (me->flags & DGLACCT_LOGIN_LOCK) {
 	    clear ();
