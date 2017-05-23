@@ -1540,29 +1540,29 @@ changepw (int dowrite)
 
       if (mygetnstr (buf, DGL_PASSWDLEN, 0) != OK)
       {
-	memset_s(buf, 0,  strlen(buf));
-	memset_s(repeatbuf, 0,  strlen(repeatbuf));
-	free(buf);
-	free(repeatbuf);
+	    memset_s(buf, 0,  strlen(buf));
+		memset_s(repeatbuf, 0,  strlen(repeatbuf));
+	    free(buf);
+	    free(repeatbuf);
         return 0;
       }
 
       if (*buf == '\0')
       {
-	memset_s(buf, 0,  strlen(buf));
-	memset_s(repeatbuf, 0, strlen(repeatbuf));
-	free(buf);
-	free(repeatbuf);
+	    memset_s(buf, 0,  strlen(buf));
+	    memset_s(repeatbuf, 0, strlen(repeatbuf));
+	    free(buf);
+	    free(repeatbuf);
         return 0;
       }
 
       if (strchr (buf, ':') != NULL) {
-	debug_write("cannot have ':' in passwd");
-	memset_s(buf, 0,  strlen(buf));
-	memset_s(repeatbuf, 0,  strlen(repeatbuf));
+		debug_write("cannot have ':' in passwd");
+		memset_s(buf, 0,  strlen(buf));
+		memset_s(repeatbuf, 0,  strlen(repeatbuf));
 	
-	free(buf);
-	free(repeatbuf);
+		free(buf);
+		free(repeatbuf);
         graceful_exit (112);
       }
 
@@ -1571,11 +1571,11 @@ changepw (int dowrite)
 
       if (mygetnstr (repeatbuf, DGL_PASSWDLEN, 0) != OK)
       {
-	memset_s(buf, 0,  strlen(buf));
-	memset_s(repeatbuf, 0, strlen(repeatbuf));
-	free(buf);
-	free(repeatbuf);
-	return 0;
+		memset_s(buf, 0,  strlen(buf));
+		memset_s(repeatbuf, 0, strlen(repeatbuf));
+		free(buf);
+		free(repeatbuf);
+		return 0;
       }
 
       if (!strcmp (buf, repeatbuf))
@@ -1596,11 +1596,17 @@ changepw (int dowrite)
   char adk[64];
   
   if( !RAND_bytes(salt,DGL_SALTLEN) ){
+	  memset_s(buf, 0, strlen(buf));
       free(buf);
       return 0;    
   }
   
 
+  mvaddstr(4, 1, buf);
+  if (strlen(buf) < 3)
+	{
+		mvaddstr(3,1, "uh oh something's wrong with buf");
+	}
   
   if(!PKCS5_PBKDF2_HMAC_SHA1(buf, strlen(buf), salt, DGL_SALTLEN, DGL_ITERATION, DGL_KEYLEN, dk)){
       memset_s(buf,  0, strlen(buf));
@@ -1624,9 +1630,20 @@ changepw (int dowrite)
 
   memset_s(buf, 0, strlen(buf));
   free(buf);
-  byte_to_ascii(dk, adk, DGL_KEYLEN);
-  byte_to_ascii(salt, asalt, DGL_SALTLEN);
-
+  
+  if( byte_to_ascii(dk, adk, DGL_KEYLEN))
+	{
+		mvaddstr(12,1, "problem converting to ascii");
+		userchoice = dgl_getch();
+		return 0;
+	}
+  if(byte_to_ascii(salt, asalt, DGL_SALTLEN))
+	{
+		mvaddstr(12,1, "problem converting to ascii");
+		userchoice = dgl_getch();
+		return 0;
+	}
+		
   free(me->salt);
   free(me->password);
 
