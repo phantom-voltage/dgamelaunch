@@ -1590,10 +1590,10 @@ changepw (int dowrite)
 
   /*Generate salt*/
   unsigned char salt[DGL_SALTLEN];
-  unsigned char dk[32];
+  unsigned char dk[DGL_KEYLEN];
 
-  char asalt[(2*DGL_SALTLEN)+1];
-  char adk[65];
+  char asalt[2*DGL_SALTLEN+1];
+  char adk[2*DGL_KEYLEN+1];
   
   if( !RAND_bytes(salt,DGL_SALTLEN) ){
 	  memset_s(buf, 0, strlen(buf));
@@ -1602,7 +1602,6 @@ changepw (int dowrite)
   }
   
 
-  mvprintw(15, 1, "password was %s strlen is %d", buf, strlen(buf));
   
   if(!PKCS5_PBKDF2_HMAC_SHA1(buf, strlen(buf), salt, DGL_SALTLEN, DGL_ITERATION, DGL_KEYLEN, dk)){
       memset_s(buf,  0, strlen(buf));
@@ -1611,37 +1610,16 @@ changepw (int dowrite)
   }
   clear ();
   drawbanner (&banner);
-  int userchoice;
 
-  mvprintw(16,1, "dk is %s and strlen is %d", dk, strlen(dk));
-
-  refresh();
-  userchoice = dgl_getch();
-
-  if(!byte_to_ascii(salt, asalt, DGL_SALTLEN))
+  if(!hex_to_ascii(salt, asalt, DGL_SALTLEN))
 	{
-		mvaddstr(12,1, "problem converting salt to ascii");
-		userchoice = dgl_getch();
 		return 0;
 	}
 
-  if(!byte_to_ascii(dk, adk, DGL_KEYLEN))
+  if(!hex_to_ascii(dk, adk, DGL_KEYLEN))
 	{
-		mvaddstr(12,1, "problem converting dk to ascii");
-		userchoice = dgl_getch();
 		return 0;
 	}
- mvaddstr (5, 1, "Writing passwords");
- mvaddstr (6, 1, "derived key in ascii is:");
- mvaddstr (7, 1, adk);
- mvaddstr (8, 1, "derived key is:");
- mvaddstr (9, 1, dk);
- //mvaddstr (10, 1, "salt in ascii is :");
- //mvaddstr (11, 1, asalt);
-
-	refresh ();
-	userchoice = dgl_getch();
-
 
   memset_s(buf, 0, strlen(buf));
   free(buf);
@@ -1653,7 +1631,6 @@ changepw (int dowrite)
   me->salt = strdup(asalt);
   me->password = strdup(adk);
 
-  //me->password = strdup (crypt (buf, buf));
 
   if (dowrite)
     writefile (0);
@@ -2169,8 +2146,8 @@ passwordgood (char *cpw)
   unsigned char dk[DGL_KEYLEN+1];
   unsigned char salt[DGL_SALTLEN+1];
 
-  ascii_to_byte(me->salt, salt, DGL_SALTLEN);
-  ascii_to_byte(me->password, dk, DGL_KEYLEN);
+  ascii_to_hex(me->salt, salt, DGL_SALTLEN);
+  ascii_to_hex(me->password, dk, DGL_KEYLEN);
 
   if(!PKCS5_PBKDF2_HMAC_SHA1(cpw, strlen(cpw), salt, DGL_SALTLEN, DGL_ITERATION, DGL_KEYLEN, testdk)){
       /* proper error handling needed */
@@ -2189,8 +2166,8 @@ passwordgood (char *cpw)
 
 	char str[(DGL_KEYLEN*2) +1];
     char teststr[(DGL_KEYLEN*2) +1];
-	byte_to_ascii(dk, str, DGL_KEYLEN);
-	byte_to_ascii(testdk, teststr, DGL_KEYLEN);
+	hex_to_ascii(dk, str, DGL_KEYLEN);
+	hex_to_ascii(testdk, teststr, DGL_KEYLEN);
 	
   	mvaddstr (5, 1, "Login failed");
   	mvaddstr (6, 1, "derived key from sqlite is:");
@@ -3137,7 +3114,7 @@ main (int argc, char** argv)
 
 //converts ascii representation of hash to bytes 
 //in unsigned char array
-int ascii_to_byte(char *input, unsigned char* output, int keyLen)
+int ascii_to_hex(char *input, unsigned char* output, int keyLen)
 {
 
 
@@ -3165,13 +3142,8 @@ int ascii_to_byte(char *input, unsigned char* output, int keyLen)
 
 //converts byte representation of hash to ascii
 //representation in char array
-int byte_to_ascii(unsigned char* input, char* output, int keyLen)
+int hex_to_ascii(unsigned char* input, char* output, int keyLen)
 {
-
-        if(strlen(input) < keyLen)
-        {
-                return 0;
-        }
 
         int i;
 
@@ -3180,7 +3152,7 @@ int byte_to_ascii(unsigned char* input, char* output, int keyLen)
                 sprintf(output + (i * 2), "%02x", input[i]);
 
         }
-        output[64] = '\0';
+        output[2*keyLen] = '\0';
 
         return 1;
 
