@@ -94,8 +94,10 @@
 #include <termios.h>
 
 /* crypto stuff */
-#include <openssl/rand.h>
-#include <openssl/evp.h>
+#ifdef USE_PBKDF2
+# include <openssl/rand.h>
+# include <openssl/evp.h>
+#endif
 
 extern FILE* yyin;
 extern int yyparse ();
@@ -161,7 +163,9 @@ cpy_me(struct dg_user *me)
 	if (me->email)    tmp->email    = strdup(me->email);
 	if (me->env)      tmp->env      = strdup(me->env);
 	if (me->password) tmp->password = strdup(me->password);
+#ifdef USE_PBKDF2
 	if (me->salt)     tmp->salt     = strdup(me->salt);
+#endif
 	tmp->flags = me->flags;
     }
     return tmp;
@@ -1490,10 +1494,11 @@ change_email ()
   }
 }
 
+
+#ifdef USE_PBKDF2
 int
 changepw (int dowrite)
 {
-  //char buf[DGL_PASSWDLEN+1];
   int error = 2;
 
   /* A precondition is that struct `me' exists because we can be not-yet-logged-in. */
@@ -1515,7 +1520,6 @@ changepw (int dowrite)
 
   while (error)
     {
-      //char repeatbuf[DGL_PASSWDLEN+1];
       clear ();
 
       drawbanner (&banner);
@@ -1588,7 +1592,7 @@ changepw (int dowrite)
         error = 1;
     }
 
-  /*Generate salt*/
+  /* Generate salt */
   unsigned char salt[DGL_SALTLEN];
   unsigned char dk[DGL_KEYLEN];
 
@@ -1601,13 +1605,12 @@ changepw (int dowrite)
       return 0;    
   }
   
-
-  
   if(!PKCS5_PBKDF2_HMAC_SHA1(buf, strlen(buf), salt, DGL_SALTLEN, DGL_ITERATION, DGL_KEYLEN, dk)){
       memset_s(buf,  0, strlen(buf));
       free(buf);
       return 0;
   }
+
   clear ();
   drawbanner (&banner);
 
@@ -1637,6 +1640,91 @@ changepw (int dowrite)
 
   return 1;
 }
+
+
+#else
+int
+changepw (int dowrite)
+{
+  char buf[DGL_PASSWDLEN+1];
+  int error = 2;
+
+  /* A precondition is that struct `me' exists because we can be not-yet-logged-in. */
+  if (!me) {
+      debug_write("no 'me' in changepw");
+    graceful_exit (122);        /* Die. */
+  }
+
+  if (me->flags & DGLACCT_PASSWD_LOCK) {
+      clear();
+      drawbanner(&banner);
+      mvprintw(5, 1, "Sorry, you cannot change the password.--More--");
+      dgl_getch();
+      return 0;
+  }
+
+  while (error)
+    {
+      char repeatbuf[DGL_PASSWDLEN+1];
+      clear ();
+
+      drawbanner (&banner);
+
+      mvprintw (5, 1,
+                "Please enter a%s password. Remember that this is sent over the net",
+                loggedin ? " new" : "");
+      mvaddstr (6, 1,
+                "in plaintext, so make it something new and expect it to be relatively");
+      mvaddstr (7, 1, "insecure.");
+      mvprintw (8, 1,
+                "%i character max. No ':' characters. Blank line to abort.", DGL_PASSWDLEN);
+      mvaddstr (10, 1, "=> ");
+
+      if (error == 1)
+        {
+          mvaddstr (15, 1, "Sorry, the passwords don't match. Try again.");
+          move (10, 4);
+        }
+
+      refresh ();
+
+      if (mygetnstr (buf, DGL_PASSWDLEN, 0) != OK)
+      return 0;
+
+      if (*buf == '\0')
+        return 0;
+
+      if (strchr (buf, ':') != NULL) {
+      debug_write("cannot have ':' in passwd");
+        graceful_exit (112);
+      }
+
+      mvaddstr (12, 1, "And again:");
+      mvaddstr (13, 1, "=> ");
+
+      if (mygetnstr (repeatbuf, DGL_PASSWDLEN, 0) != OK)
+      return 0;
+
+      if (!strcmp (buf, repeatbuf))
+        error = 0;
+      else
+        error = 1;
+    }
+
+  free(me->password);
+  me->password = strdup (crypt (buf, buf));
+
+  if (dowrite)
+    writefile (0);
+
+  return 1;
+}
+
+#endif
+
+
+
+
 
 /* ************************************************************* */
 
@@ -1950,13 +2038,14 @@ loginprompt (int from_ttyplay)
   if (passwordgood (pw_buf))
     {
         memset_s(pw_buf, 0, strlen(pw_buf));
-	free(pw_buf);
-	if (me->flags & DGLACCT_LOGIN_LOCK) {
+	    free(pw_buf);
+
+	    if (me->flags & DGLACCT_LOGIN_LOCK) {
 	    clear ();
 	    mvprintw(5, 1, "Sorry, that account has been banned.--More--");
 	    dgl_getch();
 	    return;
-	}
+		}
 
       loggedin = 1;
       if (from_ttyplay)
@@ -2135,11 +2224,10 @@ newuser ()
 /* ************************************************************* */
 
 /* crypto changes */
+#ifdef USE_PBKDF2
 int
 passwordgood (char *cpw)
 {
-
-  //char *crypted;
   assert (me != NULL);
 
   unsigned char testdk[DGL_KEYLEN+1];
@@ -2158,49 +2246,34 @@ passwordgood (char *cpw)
       return 1;
   }
        
-  
+  return 0;
+}
 
-  else{
-    clear ();
-    drawbanner (&banner);
+#else
+int
+passwordgood (char *cpw)
+{
+  char *crypted;
+  assert (me != NULL);
 
-	char str[(DGL_KEYLEN*2) +1];
-    char teststr[(DGL_KEYLEN*2) +1];
-	hex_to_ascii(dk, str, DGL_KEYLEN);
-	hex_to_ascii(testdk, teststr, DGL_KEYLEN);
-	
-  	mvaddstr (5, 1, "Login failed");
-  	mvaddstr (6, 1, "derived key from sqlite is:");
-  	mvaddstr (7, 1, str);
-  	mvaddstr (8, 1, "derived key from attempt is:");
-  	mvaddstr (9, 1, teststr);
- 	mvaddstr (10, 1, "dk is :");
-  	mvaddstr (11, 1, dk);
-	
-    refresh ();
-	int userchoice = dgl_getch();
-
-  }
-  
-
-
-/*  crypted = crypt (cpw, cpw);
+  crypted = crypt (cpw, cpw);
   if (crypted == NULL)
       return 0;
 
-#ifdef USE_SQLITE3
+# ifdef USE_SQLITE3
   if (!strncmp (crypted, me->password, DGL_PASSWDLEN))
     return 1;
 
-#else
+# else
   if (!strncmp (cpw, me->password, DGL_PASSWDLEN))
     return 1;
 
-#endif
+# endif
 
-*/
   return 0;
 }
+
+#endif
 
 /* ************************************************************* */
 
@@ -2375,8 +2448,10 @@ userexist_callback(void *NotUsed, int argc, char **argv, char **colname)
 	    userexist_tmp_me->email = strdup(argv[i]);
 	else if (!strcmp(colname[i], "env"))
 	    userexist_tmp_me->env = strdup(argv[i]);
+# ifdef USE_PBKDF2
 	else if (!strcmp(colname[i], "salt"))
 	    userexist_tmp_me->salt = strdup(argv[i]);
+# endif
 	else if (!strcmp(colname[i], "password"))
 	    userexist_tmp_me->password = strdup(argv[i]);
 	else if (!strcmp(colname[i], "flags"))
@@ -2419,7 +2494,9 @@ userexist (char *cname, int isnew)
 	free(userexist_tmp_me->email);
 	free(userexist_tmp_me->env);
 	free(userexist_tmp_me->password);
+# ifdef USE_PBKDF2
 	free(userexist_tmp_me->salt);
+# endif
 	free(userexist_tmp_me);
 	userexist_tmp_me = NULL;
     }
@@ -2589,12 +2666,23 @@ writefile (int requirenew)
     int ret, retry = 10;
 
     char *qbuf;
-
+	
+	# ifdef USE_PBKDF2
     if (requirenew) {
 	qbuf = sqlite3_mprintf("insert into dglusers (username, email, env, salt, password, flags) values ('%q', '%q', '%q', '%q', '%q', %li)", me->username, me->email, me->env, me->salt, me->password, me->flags);
     } else {
 	qbuf = sqlite3_mprintf("update dglusers set username='%q', email='%q', env='%q', salt='%q', password='%q', flags=%li where id=%i", me->username, me->email, me->env, me->salt,  me->password, me->flags, me->id);
     }
+	# else
+
+    if (requirenew) {
+    qbuf = sqlite3_mprintf("insert into dglusers (username, email, env, password, flags) values ('%q', '%q', '%q', '%q', %li)", me->username, me->email, me->env, me->password, me->flags);
+    } else {
+    qbuf = sqlite3_mprintf("update dglusers set username='%q', email='%q', env='%q', password='%q', flags=%li where id=%i", me->username, me->email, me->env, me->password, me->flags, me->id);
+    }
+
+	
+	# endif
 
     ret = sqlite3_open(globalconfig.passwd, &db);
     if (ret) {
@@ -3117,15 +3205,13 @@ main (int argc, char** argv)
 int ascii_to_hex(char *input, unsigned char* output, int keyLen)
 {
 
+        char chunk[2];
+        int i;
 
         if(strlen(input) < keyLen*2)
         {
                 return 0;
         }
-
-        char chunk[2];
-
-        int i;
 
         for (i =0; i < keyLen; i++)
         {

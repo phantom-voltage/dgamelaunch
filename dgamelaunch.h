@@ -24,9 +24,11 @@
 #define DGL_MAILMSGLEN 80 /* max. length of mail message */
 
 /* crypto stuff */
-#define DGL_SALTLEN 32
-#define DGL_ITERATION 100000
-#define DGL_KEYLEN 32
+#ifdef USE_PBKDF2
+# define DGL_SALTLEN 32
+# define DGL_ITERATION 200000
+# define DGL_KEYLEN 32
+#endif
 
 #define DGL_MAXWATCHCOLS 10
 
@@ -136,7 +138,9 @@ struct dg_user
   char *email;
   char *env;
   char *password;
+#ifdef USE_PBKDF2
   char *salt;
+#endif
   int flags;			/* dgl_acct_flag bitmask */
 };
 
