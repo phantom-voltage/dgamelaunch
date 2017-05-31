@@ -3271,7 +3271,7 @@ int memset_s(void *v, int c, size_t n) {
 
 
 #ifdef USE_PBKDF2
-int updatepw()
+void updatepw()
 {
 
   char user_buf[DGL_PLAYERNAMELEN+1];
@@ -3331,7 +3331,7 @@ int updatepw()
   if (mygetnstr (pw_buf, DGL_PASSWDLEN, 0) != OK){
       memset_s(pw_buf, 0, strlen(pw_buf));
       free(pw_buf);
-      return 0;
+      return;
   }
 
   crypted = crypt (pw_buf, pw_buf);
@@ -3346,7 +3346,7 @@ int updatepw()
       mvaddstr (5, 1, "There was a problem updating your password.");
       mvaddstr (6, 1, "Either old password is incorrect or password already updated.");
 	  dgl_getch();
-      return 0; 
+      return; 
   }
 
 
@@ -3355,7 +3355,7 @@ int updatepw()
       clear ();
       mvprintw(5, 1, "Sorry, that account has been banned.--More--");
       dgl_getch();
-      return 0;
+      return;
   } 
 
  
@@ -3363,6 +3363,6 @@ int updatepw()
   loggedin = 1;
   setproctitle("%s", me->username);
   dgl_exec_cmdqueue(globalconfig.cmdqueue[DGLTIME_LOGIN], 0, me);
-  return 1;
+  return;
 }
 #endif
