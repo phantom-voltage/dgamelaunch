@@ -3345,7 +3345,7 @@ void updatepw()
       drawbanner (&banner);
       mvaddstr (5, 1, "There was a problem updating your password.");
       mvaddstr (6, 1, "Either old password is incorrect or password already updated.");
-      mvprintw (7, 1, "Salt is %s, with strlen %d. crypted is %s", me->salt, strlen(me->salt), crypted);
+      mvprintw (7, 1, "Salt is %s. crypted is %s", me->salt, crypted);
 	  dgl_getch();
       return; 
   }
