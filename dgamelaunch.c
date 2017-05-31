@@ -3338,7 +3338,7 @@ void updatepw()
   memset_s(pw_buf, 0, strlen(pw_buf));
   free(pw_buf);
 
-  if (me->salt || crypted==NULL || strncmp(crypted, me->password, DGL_PASSWDLEN)){
+  if (strlen(me->salt) || crypted==NULL || strncmp(crypted, me->password, DGL_PASSWDLEN)){
       
       clear ();
       drawbanner (&banner);
