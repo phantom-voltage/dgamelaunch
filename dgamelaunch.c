@@ -3347,13 +3347,11 @@ void updatepw()
       mvprintw (7, 1, "Salt is %s, with strlen %d. crypted is %s", me->salt, strlen(me->salt), crypted);
   	  refresh ();
 	  dgl_getch();
-      me = NULL;
       return; 
   }
 
 
   if (me->flags & DGLACCT_LOGIN_LOCK) {
-      me = NULL;
       clear ();
       mvprintw(5, 1, "Sorry, that account has been banned.--More--");
       dgl_getch();
