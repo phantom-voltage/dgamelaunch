@@ -3344,7 +3344,6 @@ void updatepw()
       drawbanner (&banner);
       mvaddstr (5, 1, "There was a problem updating your password.");
       mvaddstr (6, 1, "Either old password is incorrect or password already updated.");
-      mvprintw (7, 1, "Salt is %s, with strlen %d. crypted is %s", me->salt, strlen(me->salt), crypted);
   	  refresh ();
 	  dgl_getch();
       return; 
@@ -3354,6 +3353,7 @@ void updatepw()
   if (me->flags & DGLACCT_LOGIN_LOCK) {
       clear ();
       mvprintw(5, 1, "Sorry, that account has been banned.--More--");
+  	  refresh ();
       dgl_getch();
       return;
   } 
